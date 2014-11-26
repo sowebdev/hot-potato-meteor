@@ -15,6 +15,7 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
     this.phaser = game.phaser;
     this.id = id;
     this.isCurrentPlayer = false;
+    this.speed = 200;
 
     if (typeof isCurrentPlayer !== 'undefined') {
         this.isCurrentPlayer = isCurrentPlayer;
@@ -65,16 +66,19 @@ HotPotatoe.Player.prototype.create = function() {
 HotPotatoe.Player.prototype.update = function() {
     //Handle player input and update sprite sync
     if (Meteor.isServer) {
-        //TODO handle player movement
         if (UserActions[this.id].cursors.left.isDown) {
-            //  Move left
+            this.sprite.body.velocity.x = -this.speed;
         } else if (UserActions[this.id].cursors.right.isDown) {
-            //  Move right
+            this.sprite.body.velocity.x = this.speed;
+        } else {
+            this.sprite.body.velocity.x = 0;
         }
         if (UserActions[this.id].cursors.up.isDown) {
-            //  Move up
+            this.sprite.body.velocity.y = -this.speed;
         } else if (UserActions[this.id].cursors.down.isDown) {
-            //  Move down
+            this.sprite.body.velocity.y = this.speed;
+        } else {
+            this.sprite.body.velocity.y = 0;
         }
         Sync.updateSprite(this.sprite);
     }
