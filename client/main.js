@@ -39,7 +39,9 @@ Deps.autorun(function () {
         Meteor.subscribe('sprite', gameDb._id);
         if (Session.get('isGameRunning') === false) {
             //Run the game
-            console.log('TODO : setup and run game');
+            game = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameDb._id);
+            game.setUp(gameDb.players);
+            game.start();
             Session.set('isGameRunning', true);
         }
     }

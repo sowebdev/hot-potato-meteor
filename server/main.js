@@ -40,8 +40,7 @@ Meteor.onConnection(function (connection) {
             width: 900,
             height: 500
         };
-        console.log('TODO : create and store server-side game instance in memory');
-        GameInstances[gameId] = 1;
+        GameInstances[gameId] = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameId);
     }
     //Initialize user actions
     UserActions[connection.id] = {
@@ -75,7 +74,8 @@ games.observe({
                 }
             });
             //Run server-side game
-            console.log('TODO : run game server');
+            GameInstances[newDocument._id].setUp(newDocument.players);
+            GameInstances[newDocument._id].start();
         }
     }
 });
