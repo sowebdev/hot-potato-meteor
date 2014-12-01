@@ -43,9 +43,8 @@ HotPotatoe.Player.prototype.create = function() {
 
     if (Meteor.isServer) {
         // We need to enable physics on the player
-        this.phaser.physics.arcade.enable(this.sprite);
-        //  Player physics properties
-        this.sprite.body.collideWorldBounds = true;
+        this.phaser.physics.p2.enable(this.sprite);
+        this.sprite.body.setCircle(15);
     }
 
     // If this player is controlled by the user

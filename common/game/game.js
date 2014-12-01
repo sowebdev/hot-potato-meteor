@@ -16,7 +16,6 @@ HotPotatoe.Game = function(game, id) {
     this.id = id;
 
     this.players = [];
-    this.playersGroup = null;
 
     //Will hold every sprites by their syncId
     this.sprites = {};
@@ -31,12 +30,11 @@ HotPotatoe.Game = function(game, id) {
             }
         },
         create: function() {
+            self.phaser.physics.startSystem(Phaser.Physics.P2JS);
             self.phaser.stage.backgroundColor = '#2d2d2d';
-            self.playersGroup = self.phaser.add.group();
 
             for (var i = 0; i < self.players.length; i++) {
                 self.players[i].create();
-                self.playersGroup.add(self.players[i].sprite);
             }
 
             if (Meteor.isClient) {
@@ -56,10 +54,6 @@ HotPotatoe.Game = function(game, id) {
         update: function() {
             if (!self.createDone) {
                 return;
-            }
-
-            if (Meteor.isServer) {
-                self.phaser.physics.arcade.collide(self.playersGroup);
             }
 
             for (var i = 0; i < self.players.length; i++) {
