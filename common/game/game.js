@@ -30,7 +30,9 @@ HotPotatoe.Game = function(game, id) {
             }
         },
         create: function() {
-            self.phaser.physics.startSystem(Phaser.Physics.P2JS);
+            if (Meteor.isServer) {
+                self.phaser.physics.startSystem(Phaser.Physics.P2JS);
+            }
             self.phaser.stage.backgroundColor = '#2d2d2d';
 
             for (var i = 0; i < self.players.length; i++) {
