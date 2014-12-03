@@ -45,6 +45,11 @@ HotPotatoe.Player.prototype.create = function() {
         // We need to enable physics on the player
         this.phaser.physics.p2.enable(this.sprite);
         this.sprite.body.setCircle(15);
+    } else {
+        //We need to center anchor on client because
+        //when we set a p2 physics body on this sprite on server
+        //the anchor is centered implicitly
+        this.sprite.anchor.setTo(0.5, 0.5);
     }
 
     // If this player is controlled by the user
