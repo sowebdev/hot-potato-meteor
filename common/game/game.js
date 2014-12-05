@@ -77,6 +77,11 @@ HotPotatoe.Game.prototype.setUp = function(players) {
     for (var i = 0; i < players.length; i++) {
         this.players.push(new HotPotatoe.Player(this, players[i]));
     }
+
+    if (Meteor.isServer) {
+        this.players[new Phaser.RandomDataGenerator().between(0, this.players.length - 1)].setHotPotatoe(true);
+    }
+
     if (Meteor.isClient) {
         //Flag user's player
         for (var j = 0; j < this.players.length; j++) {

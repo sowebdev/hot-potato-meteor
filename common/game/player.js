@@ -16,6 +16,7 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
     this.id = id;
     this.isCurrentPlayer = false;
     this.speed = 200;
+    this.isHotPotatoe = false;
 
     if (typeof isCurrentPlayer !== 'undefined') {
         this.isCurrentPlayer = isCurrentPlayer;
@@ -86,4 +87,12 @@ HotPotatoe.Player.prototype.update = function() {
         }
         Sync.updateSprite(this.sprite);
     }
+};
+
+/**
+ * Defines the hot potatoe flag attribute state
+ * @param {boolean} hotpotatoe
+ */
+HotPotatoe.Player.prototype.setHotPotatoe = function(hotpotatoe) {
+    this.isHotPotatoe = hotpotatoe;
 };
