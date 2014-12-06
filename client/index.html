@@ -3,5 +3,9 @@
     <title>Hot potatoe</title>
 </head>
 <body>
-    <div id="gameContainer"></div>
+    {{#if isGameRunning}}
+        {{> game}}
+    {{else}}
+        {{> queue}}
+    {{/if}}
 </body>
