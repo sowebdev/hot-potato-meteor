@@ -46,6 +46,7 @@ GamePlayers.player = function () {
 
 if (Meteor.isServer) {
     // Publish the current user's player profile to the client.
+    //TODO this needs to be updated reactively after a player profile was created
     Meteor.publish(null, function() {
         if (GamePlayers.playerId()) {
             return GamePlayers.players.find(

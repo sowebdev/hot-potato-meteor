@@ -1,3 +1,11 @@
 <template name="queue">
-    Attente
+    {{#if hasRoom}}
+        Has a room
+    {{else}}
+        {{#if hasPlayerProfile}}
+            Has a player
+        {{else}}
+            {{> playerCreationView}}
+        {{/if}}
+    {{/if}}
 </template>

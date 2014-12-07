@@ -1,0 +1,9 @@
+<template name="playerCreationView">
+    {{#if currentUser}}
+        <label for="createPlayerName">Please choose a player name</label>
+        <input type="text" name="createPlayerName" id="createPlayerName"/>
+        <button id="confirmPlayerCreation">OK</button>
+    {{else}}
+        You need to log in before you can create a player profile
+    {{/if}}
+</template>
