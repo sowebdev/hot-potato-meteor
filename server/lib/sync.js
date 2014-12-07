@@ -1,5 +1,5 @@
 Sync = {
-    insertSprite: function (sprite, game) {
+    insertSprite: function (sprite, game, isHotPotatoe) {
         sprite.id = Sprites.insert({
             game: game,
             syncId: sprite.syncId,
@@ -7,17 +7,19 @@ Sync = {
             height: sprite.height,
             x: sprite.x,
             y: sprite.y,
-            angle: sprite.angle
+            angle: sprite.angle,
+            isHotPotatoe: isHotPotatoe
         });
     },
-    updateSprite: function (sprite) {
+    updateSprite: function (sprite, isHotPotatoe) {
         Sprites.update(sprite.id, {
             $set: {
                 width: sprite.width,
                 height: sprite.height,
                 x: sprite.x,
                 y: sprite.y,
-                angle: sprite.angle
+                angle: sprite.angle,
+                isHotPotatoe: isHotPotatoe
             }
         });
     }

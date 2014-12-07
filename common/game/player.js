@@ -51,6 +51,9 @@ HotPotatoe.Player.prototype.create = function() {
         //when we set a p2 physics body on this sprite on server
         //the anchor is centered implicitly
         this.sprite.anchor.setTo(0.5, 0.5);
+
+        this.notifyText = this.phaser.add.text(0, 0, 'You are the Hot Potatoe !');
+        this.notifyText.visible = false;
     }
 
     // If this player is controlled by the user
@@ -61,7 +64,7 @@ HotPotatoe.Player.prototype.create = function() {
 
     //Add sprite to synced collection
     if (Meteor.isServer) {
-        Sync.insertSprite(this.sprite, this.parent.id);
+        Sync.insertSprite(this.sprite, this.parent.id, this.isHotPotatoe);
     }
 };
 
@@ -85,7 +88,13 @@ HotPotatoe.Player.prototype.update = function() {
         } else {
             this.sprite.body.velocity.y = 0;
         }
-        Sync.updateSprite(this.sprite);
+        Sync.updateSprite(this.sprite, this.isHotPotatoe);
+    }
+
+    if (Meteor.isClient) {
+        if (this.sprite.isHotPotatoe && this.isCurrentPlayer) {
+            this.notifyText.visible = true;
+        }
     }
 };
 

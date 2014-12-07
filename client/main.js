@@ -59,6 +59,7 @@ Deps.autorun(function(){
                 sprite.width = spriteDb.width;
                 sprite.height = spriteDb.height;
                 sprite.angle = spriteDb.angle;
+                sprite.isHotPotatoe = spriteDb.isHotPotatoe;
             }
         }
     });
