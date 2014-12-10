@@ -16,16 +16,19 @@ GamePlayers.players = new Meteor.Collection("game_players");
  * @locus Anywhere
  */
 GamePlayers.playerId = function () {
-    var userId = null;
+    var user = null;
     try {
-        userId = Meteor.userId();
+        user = Meteor.user();
     } catch (error) {
         return null;
     }
-    if (!userId) {
+    if (!user) {
         return null;
     }
-    var player = GamePlayers.players.findOne({associationId: userId});
+    if (!user.profile.playerId) {
+        return null;
+    }
+    var player = GamePlayers.players.findOne(user.profile.playerId);
     if (!player) {
         return null;
     }
@@ -46,15 +49,11 @@ GamePlayers.player = function () {
 
 if (Meteor.isServer) {
     // Publish the current user's player profile to the client.
-    //TODO this needs to be updated reactively after a player profile was created
     Meteor.publish(null, function() {
-        if (GamePlayers.playerId()) {
-            return GamePlayers.players.find(
-                {_id: GamePlayers.playerId()}
-            );
-        } else {
+        if (!this.userId) {
             return null;
         }
+        return GamePlayers.players.find({associationId: this.userId});
     });
 
     /**
@@ -82,7 +81,15 @@ if (Meteor.isServer) {
                 throw new Meteor.Error('User must be logged in to create a player profile');
             }
             userId = this.userId;
-            return GamePlayers.create(name, userId);
+            var playerId = GamePlayers.create(name, userId);
+            Meteor.users.update(userId, {
+                $set: {
+                    profile: {
+                        playerId: playerId
+                    }
+                }
+            });
+            return playerId;
         }
     });
 }

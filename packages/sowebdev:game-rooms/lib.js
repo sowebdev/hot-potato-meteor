@@ -16,17 +16,21 @@ GameRooms.rooms = new Meteor.Collection("game_rooms");
  * @locus Anywhere
  */
 GameRooms.currentRoomId = function () {
-    var player = GamePlayers.playerId();
-    if (!player) {
+    var playerId = GamePlayers.playerId();
+    if (!playerId) {
         return null;
     }
-    return GameRooms.rooms.findOne({
+    var room =  GameRooms.rooms.findOne({
         players: {
             $elemMatch: {
-                id: player._id
+                id: playerId
             }
         }
-    })._id;
+    });
+    if (!room) {
+        return null;
+    }
+    return room._id;
 };
 
 /**
