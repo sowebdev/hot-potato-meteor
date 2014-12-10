@@ -25,7 +25,7 @@ GamePlayers.playerId = function () {
     if (!user) {
         return null;
     }
-    if (!user.profile.playerId) {
+    if (typeof user.profile === 'undefined') {
         return null;
     }
     var player = GamePlayers.players.findOne(user.profile.playerId);
