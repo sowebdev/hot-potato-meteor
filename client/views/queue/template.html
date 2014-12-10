@@ -3,7 +3,7 @@
         Has a room
     {{else}}
         {{#if hasPlayerProfile}}
-            Has a player
+            {{> listRoomsView}}
         {{else}}
             {{> playerCreationView}}
         {{/if}}

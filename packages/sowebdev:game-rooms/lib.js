@@ -57,6 +57,11 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
 
+    Meteor.publish(null, function() {
+        //We publish all rooms
+        return GameRooms.rooms.find();
+    });
+
     var createRoom = function(name) {
         return GameRooms.rooms.insert({
             name: name,
@@ -66,7 +71,7 @@ if (Meteor.isServer) {
     };
 
     var addPlayerToRoom = function(playerId, roomId, isOwner){
-        var player = GamePlayers.rooms.findOne(playerId);
+        var player = GamePlayers.players.findOne(playerId);
         var addOptions = {
             $push: {
                 players: {
@@ -110,9 +115,22 @@ if (Meteor.isServer) {
     };
 
 
-
-
     Meteor.methods({
-        setCurrentRoom: setCurrentRoom
+        setCurrentRoom: setCurrentRoom,
+        createRoom: function (name) {
+            var roomId = createRoom(name);
+            addPlayerToRoom(GamePlayers.playerId(), roomId, true);
+        }
     });
+}
+
+if (Meteor.isClient) {
+    /**
+     * @summary Creates a room for current player
+     * @param {string} name - Room's name
+     * @locus Client
+     */
+    GameRooms.createRoom = function (name) {
+        return Meteor.call('createRoom', name);
+    };
 }

@@ -11,5 +11,7 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/views/playerCreationView.html',
         'client/views/playerCreationView.js',
+        'client/views/listRoomsView.html',
+        'client/views/listRoomsView.js',
         'client/helpers.js'], 'client');
 });

@@ -1,0 +1,14 @@
+<template name="listRoomsView">
+    <div>
+        <label for="createRoom">Please choose a game room name</label>
+        <input type="text" name="createRoom" id="createRoom"/>
+        <button id="confirmRoomCreation">OK</button>
+    </div>
+    <div>
+        <ul>
+        {{#each gameRooms}}
+            <li>{{name}}</li>
+        {{/each}}
+        </ul>
+    </div>
+</template>
