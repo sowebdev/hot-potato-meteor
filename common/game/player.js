@@ -52,7 +52,7 @@ HotPotatoe.Player.prototype.create = function() {
         //the anchor is centered implicitly
         this.sprite.anchor.setTo(0.5, 0.5);
 
-        this.notifyText = this.phaser.add.text(0, 0, 'You are the Hot Potatoe !');
+        this.notifyText = this.phaser.add.text(0, 0, 'You are the Hot Potatoe !', {fill: 'white'});
         this.notifyText.visible = false;
     }
 
@@ -60,11 +60,6 @@ HotPotatoe.Player.prototype.create = function() {
     // Camera should follow him
     if (this.isCurrentPlayer) {
         this.phaser.camera.follow(this.sprite);
-    }
-
-    //Add sprite to synced collection
-    if (Meteor.isServer) {
-        Sync.insertSprite(this.sprite, this.parent.id, this.isHotPotatoe);
     }
 };
 
@@ -88,11 +83,10 @@ HotPotatoe.Player.prototype.update = function() {
         } else {
             this.sprite.body.velocity.y = 0;
         }
-        Sync.updateSprite(this.sprite, this.isHotPotatoe);
     }
 
     if (Meteor.isClient) {
-        if (this.sprite.isHotPotatoe && this.isCurrentPlayer) {
+        if (this.isHotPotatoe && this.isCurrentPlayer) {
             this.notifyText.visible = true;
         }
     }

@@ -1,5 +1,5 @@
 GamesDb = new Meteor.Collection('game');
-Sprites = new Meteor.Collection('sprite');
+Players = new Meteor.Collection('players');
 
 var phaserConfig = {
     width: 900,
@@ -35,8 +35,8 @@ Deps.autorun(function () {
         status: 'running'
     });
     if (gameDb) {
-        //Subscribe to sprite sync for current game
-        Meteor.subscribe('sprite', gameDb._id);
+        //Subscribe to players sync for current game
+        Meteor.subscribe('players', gameDb._id);
         if (Session.get('isGameRunning') === false) {
             //Run the game
             game = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameDb._id);
@@ -47,19 +47,21 @@ Deps.autorun(function () {
     }
 });
 
-//Sync sprite changes
-Deps.autorun(function(){
-    var spriteDb = Sprites.find();
-    spriteDb.forEach(function(spriteDb){
+//Sync players changes
+Deps.autorun(function() {
+    var playersDb = Players.find();
+    playersDb.forEach(function(playerDb) {
         if (game) {
-            var sprite = _.findWhere(game.sprites, {syncId: spriteDb.syncId});
-            if (sprite) {
-                sprite.x = spriteDb.x;
-                sprite.y = spriteDb.y;
-                sprite.width = spriteDb.width;
-                sprite.height = spriteDb.height;
-                sprite.angle = spriteDb.angle;
-                sprite.isHotPotatoe = spriteDb.isHotPotatoe;
+            var _player = _.findWhere(game.players, {id: playerDb.id});
+            if (_player) {
+                _player.setHotPotatoe(playerDb.isHotPotatoe);
+                if (_player.sprite) {
+                    _player.sprite.x = playerDb.sprite.x;
+                    _player.sprite.y = playerDb.sprite.y;
+                    _player.sprite.width = playerDb.sprite.width;
+                    _player.sprite.height = playerDb.sprite.height;
+                    _player.sprite.angle = playerDb.sprite.angle;
+                }
             }
         }
     });

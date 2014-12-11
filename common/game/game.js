@@ -37,6 +37,9 @@ HotPotatoe.Game = function(game, id) {
 
             for (var i = 0; i < self.players.length; i++) {
                 self.players[i].create();
+                if (Meteor.isServer) {
+                    SyncPlayer.insert(self.id, self.players[i]);
+                }
             }
 
             if (Meteor.isClient) {
@@ -60,6 +63,9 @@ HotPotatoe.Game = function(game, id) {
 
             for (var i = 0; i < self.players.length; i++) {
                 self.players[i].update();
+                if (Meteor.isServer) {
+                    SyncPlayer.update(self.players[i]);
+                }
             }
         }
     };

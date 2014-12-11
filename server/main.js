@@ -1,6 +1,6 @@
 GamesDb = new Meteor.Collection('game');
 // Live game data will be kept in memory only in order to minimize latency
-Sprites = new Meteor.Collection('sprite', {connection: null});
+Players = new Meteor.Collection('players', {connection: null});
 //Store every server-side game instance in following array
 GameInstances = [];
 
@@ -11,10 +11,10 @@ Meteor.publish('game', function () {
     });
 });
 
-// Server publishes sprite data for a given game
-Meteor.publish('sprite', function (game) {
-    return Sprites.find({
-        game: game
+// Server publishes player data for a given game
+Meteor.publish('players', function (game) {
+    return Players.find({
+        gameId: game
     });
 });
 
@@ -66,7 +66,7 @@ var games = GamesDb.find({
 });
 games.observe({
     changed: function (newDocument, oldDocument) {
-        if (newDocument.players.length === 2) {
+        if (newDocument.players.length === 3) {
             //Update game status
             GamesDb.update(newDocument._id, {
                 $set: {
