@@ -133,4 +133,12 @@ if (Meteor.isClient) {
     GameRooms.createRoom = function (name) {
         return Meteor.call('createRoom', name);
     };
+    /**
+     * @summary Makes current player join a room
+     * @param {string} id - Room's ID
+     * @locus Client
+     */
+    GameRooms.joinRoom = function (id) {
+        return Meteor.call('setCurrentRoom', id);
+    };
 }
