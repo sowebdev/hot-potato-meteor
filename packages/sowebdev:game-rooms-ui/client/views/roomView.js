@@ -6,7 +6,7 @@ Template.roomView.helpers({
 
 Template.roomView.events({
     'click .startGame': function(){
-        alert('TODO : Start the game');
+        Meteor.call('startGame');
         return false;
     }
 });

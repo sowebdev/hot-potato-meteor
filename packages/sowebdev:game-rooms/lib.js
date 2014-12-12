@@ -105,11 +105,38 @@ if (Meteor.isServer) {
     };
 
 
+    var createGameHook = new Hook();
+
+    /**
+     * @summary Registers a function which will start a new game instance
+     * @locus Server
+     * @param {Function} func Called whenever a game should be started
+     */
+    GameRooms.startGameCallback = function (func) {
+        return createGameHook.register(func);
+    };
+
     Meteor.methods({
         setCurrentRoom: setCurrentRoom,
         createRoom: function (name) {
             var roomId = createRoom(name);
             addPlayerToRoom(GamePlayers.playerId(), roomId, true);
+        },
+        startGame: function() {
+            var player = GamePlayers.player();
+            if (!player) {
+                throw new Meteor.Error('User has no player profile');
+            }
+            var room = GameRooms.currentRoom();
+            if (!room) {
+                throw new Meteor.Error('Player is not in a room');
+            }
+            if (room.owner != player._id) {
+                throw new Meteor.Error('Only the room owner can start the game');
+            }
+            createGameHook.each(function(callback){
+                callback();
+            });
         }
     });
 }
