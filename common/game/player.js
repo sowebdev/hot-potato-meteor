@@ -16,6 +16,7 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
     this.id = id;
     this.isCurrentPlayer = false;
     this.speed = 200;
+    this.isHotPotatoe = false;
 
     if (typeof isCurrentPlayer !== 'undefined') {
         this.isCurrentPlayer = isCurrentPlayer;
@@ -50,17 +51,15 @@ HotPotatoe.Player.prototype.create = function() {
         //when we set a p2 physics body on this sprite on server
         //the anchor is centered implicitly
         this.sprite.anchor.setTo(0.5, 0.5);
+
+        this.notifyText = this.phaser.add.text(0, 0, 'You are the Hot Potatoe !', {fill: 'white'});
+        this.notifyText.visible = false;
     }
 
     // If this player is controlled by the user
     // Camera should follow him
     if (this.isCurrentPlayer) {
         this.phaser.camera.follow(this.sprite);
-    }
-
-    //Add sprite to synced collection
-    if (Meteor.isServer) {
-        Sync.insertSprite(this.sprite, this.parent.id);
     }
 };
 
@@ -84,6 +83,19 @@ HotPotatoe.Player.prototype.update = function() {
         } else {
             this.sprite.body.velocity.y = 0;
         }
-        Sync.updateSprite(this.sprite);
     }
+
+    if (Meteor.isClient) {
+        if (this.isHotPotatoe && this.isCurrentPlayer) {
+            this.notifyText.visible = true;
+        }
+    }
+};
+
+/**
+ * Defines the hot potatoe flag attribute state
+ * @param {boolean} hotpotatoe
+ */
+HotPotatoe.Player.prototype.setHotPotatoe = function(hotpotatoe) {
+    this.isHotPotatoe = hotpotatoe;
 };

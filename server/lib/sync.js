@@ -1,23 +1,29 @@
-Sync = {
-    insertSprite: function (sprite, game) {
-        sprite.id = Sprites.insert({
-            game: game,
-            syncId: sprite.syncId,
-            width: sprite.width,
-            height: sprite.height,
-            x: sprite.x,
-            y: sprite.y,
-            angle: sprite.angle
+SyncPlayer = {
+    insert: function (gameId, player) {
+        player.syncId = Players.insert({
+            gameId: gameId,
+            isHotPotatoe: player.isHotPotatoe,
+            id: player.id,
+            sprite: {
+                x: player.sprite.x,
+                y: player.sprite.y,
+                width: player.sprite.width,
+                height: player.sprite.height,
+                angle: player.sprite.angle
+            }
         });
     },
-    updateSprite: function (sprite) {
-        Sprites.update(sprite.id, {
+    update: function (player) {
+        Players.update(player.syncId, {
             $set: {
-                width: sprite.width,
-                height: sprite.height,
-                x: sprite.x,
-                y: sprite.y,
-                angle: sprite.angle
+                isHotPotatoe: player.isHotPotatoe,
+                sprite: {
+                    x: player.sprite.x,
+                    y: player.sprite.y,
+                    width: player.sprite.width,
+                    height: player.sprite.height,
+                    angle: player.sprite.angle
+                }
             }
         });
     }
