@@ -1,0 +1,15 @@
+<template name="roomView">
+    <div>
+        This is the room {{name}}
+    </div>
+    <ul>
+    {{#each players}}
+        <li>{{name}}</li>
+    {{/each}}
+    </ul>
+    {{#if isOwner}}
+    <div>
+        <a href="" class="startGame">Start game</a>
+    </div>
+    {{/if}}
+</template>

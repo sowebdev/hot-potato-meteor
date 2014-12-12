@@ -1,13 +1,7 @@
-Template.registerHelper('hasRoom', function(){
-    if (GameRooms.currentRoomId()) {
-        return true;
-    }
-    return false;
+Template.registerHelper('currentRoom', function(){
+    return GameRooms.currentRoom();
 });
 
-Template.registerHelper('hasPlayerProfile', function(){
-    if (GamePlayers.playerId()) {
-        return true;
-    }
-    return false;
+Template.registerHelper('currentPlayer', function(){
+    return GamePlayers.player();
 });

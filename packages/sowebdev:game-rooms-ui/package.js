@@ -13,5 +13,7 @@ Package.onUse(function(api) {
         'client/views/playerCreationView.js',
         'client/views/listRoomsView.html',
         'client/views/listRoomsView.js',
+        'client/views/roomView.html',
+        'client/views/roomView.js',
         'client/helpers.js'], 'client');
 });

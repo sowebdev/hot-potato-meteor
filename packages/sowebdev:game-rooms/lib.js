@@ -45,16 +45,6 @@ GameRooms.currentRoom = function () {
     return GameRooms.rooms.findOne(currentRoomId);
 };
 
-if (Meteor.isClient) {
-    /**
-     * @summary Defines user's current room
-     * @locus Client
-     */
-    GameRooms.setCurrentRoom = function (roomId) {
-        Meteor.call('setCurrentRoom', roomId);
-    }
-}
-
 if (Meteor.isServer) {
 
     Meteor.publish(null, function() {

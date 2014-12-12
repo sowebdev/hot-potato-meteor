@@ -1,11 +1,11 @@
 <template name="queue">
-    {{#if hasRoom}}
-        Has a room
+    {{#with currentRoom}}
+        {{> roomView}}
     {{else}}
-        {{#if hasPlayerProfile}}
+        {{#if currentPlayer}}
             {{> listRoomsView}}
         {{else}}
             {{> playerCreationView}}
         {{/if}}
-    {{/if}}
+    {{/with}}
 </template>
