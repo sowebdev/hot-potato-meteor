@@ -1,0 +1,11 @@
+<template name="gameRoomsContainer">
+    {{#with currentRoom}}
+        {{> roomView}}
+    {{else}}
+        {{#if currentPlayer}}
+            {{> listRoomsView}}
+        {{else}}
+            {{> playerCreationView}}
+        {{/if}}
+    {{/with}}
+</template>

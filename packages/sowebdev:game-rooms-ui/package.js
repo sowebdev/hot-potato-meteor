@@ -9,6 +9,7 @@ Package.onUse(function(api) {
     api.use('templating', 'client');
     api.use('sowebdev:game-rooms');
     api.addFiles([
+        'client/views/gameRoomsContainer.html',
         'client/views/playerCreationView.html',
         'client/views/playerCreationView.js',
         'client/views/listRoomsView.html',
