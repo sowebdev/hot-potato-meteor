@@ -135,7 +135,7 @@ if (Meteor.isServer) {
                 throw new Meteor.Error('Only the room owner can start the game');
             }
             createGameHook.each(function(callback){
-                callback();
+                callback(room._id);
             });
         }
     });

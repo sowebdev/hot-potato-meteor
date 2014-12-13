@@ -17,18 +17,6 @@ Meteor.subscribe('game');
 
 Session.setDefault('isGameRunning', false);
 
-// When the client connects, store his connection ID
-Deps.autorun(function () {
-    var status = Meteor.status();
-    if (status.connected) {
-        Meteor.call('getSessionId', function (error, result) {
-            if (!error) {
-                Session.set('userId', result);
-            }
-        });
-    }
-});
-
 // Observe game status change
 Deps.autorun(function () {
     var gameDb = GamesDb.findOne({
