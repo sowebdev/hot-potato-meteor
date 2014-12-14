@@ -13,7 +13,9 @@ var phaserConfig = {
 var game = null;
 
 // Client receives games he is allowed to see
-Meteor.subscribe('game');
+Deps.autorun(function(){
+    Meteor.subscribe('game', GamePlayers.playerId());
+});
 
 Session.setDefault('isGameRunning', false);
 

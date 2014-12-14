@@ -11,4 +11,4 @@ TODO
 - highlight player controlled by user
 - sync initial player positions
 - handle collisions between players to make hot potatoe jump from player to player
-- game room system
+- improve game room system

@@ -5,10 +5,9 @@ Players = new Meteor.Collection('players', {connection: null});
 GameInstances = [];
 
 // Server publishes games where the client is registered
-//TODO this doesn't work for now
-Meteor.publish('game', function () {
+Meteor.publish('game', function (playerId) {
     return GamesDb.find({
-        players: GamePlayers.playerId()
+        players: playerId
     });
 });
 
