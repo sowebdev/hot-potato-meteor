@@ -1,6 +1,13 @@
 Template.roomView.helpers({
     isOwner: function () {
         return this.owner == GamePlayers.playerId();
+    },
+    gameExists: function() {
+        var currentRoom = GameRooms.currentRoom();
+        if (currentRoom && currentRoom.game) {
+            return true;
+        }
+        return false;
     }
 });
 

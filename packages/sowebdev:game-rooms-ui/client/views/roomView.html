@@ -8,8 +8,10 @@
     {{/each}}
     </ul>
     {{#if isOwner}}
+        {{#unless gameExists}}
     <div>
         <a href="" class="startGame">Start game</a>
     </div>
+        {{/unless}}
     {{/if}}
 </template>

@@ -104,17 +104,12 @@ if (Meteor.isServer) {
         addPlayerToRoom(GamePlayers.playerId(), room._id);
     };
 
-
-    var createGameHook = new Hook();
-
     /**
-     * @summary Registers a function which will start a new game instance
+     * @summary Override this to define a function which will start a new game instance
      * @locus Server
-     * @param {Function} func Called whenever a game should be started
+     * @param {String} roomId Identifier of the room
      */
-    GameRooms.startGameCallback = function (func) {
-        return createGameHook.register(func);
-    };
+    GameRooms.startGameCallback = function (roomId) {};
 
     Meteor.methods({
         setCurrentRoom: setCurrentRoom,
@@ -134,8 +129,14 @@ if (Meteor.isServer) {
             if (room.owner != player._id) {
                 throw new Meteor.Error('Only the room owner can start the game');
             }
-            createGameHook.each(function(callback){
-                callback(room._id);
+            var gameId =  GameRooms.startGameCallback(room._id);
+            if (!gameId) {
+                throw new Meteor.Error('Game creation callback does not return any game identifier');
+            }
+            GameRooms.rooms.update(room._id, {
+                $set: {
+                    game: gameId
+                }
             });
         }
     });

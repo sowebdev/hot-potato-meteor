@@ -7,7 +7,6 @@ Package.describe({
 Package.onUse(function (api) {
     api.versionsFrom('1.0');
     api.use('sowebdev:game-players');
-    api.use('callback-hook', 'server');
     api.addFiles('lib.js');
     api.export('GameRooms');
 });

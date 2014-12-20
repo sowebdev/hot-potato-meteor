@@ -19,10 +19,7 @@ Meteor.publish('players', function (game) {
 });
 
 Meteor.startup(function(){
-    GameRooms.startGameCallback(function(roomId){
-
-        //TODO prevent creating multiple running games for a same room
-
+    GameRooms.startGameCallback = function(roomId){
         //Create game document in DB
         var room = GameRooms.rooms.findOne(roomId);
         var gamePlayers = [];
@@ -56,5 +53,7 @@ Meteor.startup(function(){
         //Run server-side game instance
         GameInstances[gameId].setUp(gamePlayers);
         GameInstances[gameId].start();
-    });
+
+        return gameId;
+    };
 });
