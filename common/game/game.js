@@ -17,14 +17,22 @@ HotPotatoe.Game = function(game, id) {
 
     this.players = [];
 
-    //Will hold every sprites by their syncId
-    this.sprites = {};
-
     //small fix on server to avoid update before create was called
     this.createDone = false;
 
+    // Sprites assets ids for every player state
+    this.assetIds = {
+        hotpotatoe: 'green',
+        currentPlayer: 'blue',
+        players: 'red'
+    };
+
     var mainState = {
         preload: function() {
+            self.phaser.load.image(self.assetIds.hotpotatoe, 'assets/circle-green.png', false, 30, 30);
+            self.phaser.load.image(self.assetIds.players, 'assets/circle-red.png', false, 30, 30);
+            self.phaser.load.image(self.assetIds.currentPlayer, 'assets/circle-blue.png', false, 30, 30);
+
             for (var i = 0; i < self.players.length; i++) {
                 self.players[i].preload();
             }

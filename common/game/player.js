@@ -27,13 +27,10 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
  * Pre-load player assets
  */
 HotPotatoe.Player.prototype.preload = function() {
-    var assetName = 'assets/circle-red.png';
+    this.assetId = this.parent.assetIds.players;
     if (this.isCurrentPlayer) {
-        assetName = 'assets/circle-blue.png';
+        this.assetId = this.parent.assetIds.currentPlayer;
     }
-
-    this.assetId = 'player' + this.id;
-    this.phaser.load.image(this.assetId, assetName, false, 30, 30);
 };
 
 /**
@@ -43,8 +40,6 @@ HotPotatoe.Player.prototype.create = function() {
     var x = Math.floor((Math.random() * 900) + 1);
     var y = Math.floor((Math.random() * 500) + 1);
     this.sprite = this.phaser.add.sprite(x, y, this.assetId);
-    this.sprite.syncId = this.assetId;
-    this.parent.sprites[this.sprite.syncId] = this.sprite;
 
     if (Meteor.isServer) {
         // We need to enable physics on the player
@@ -97,9 +92,24 @@ HotPotatoe.Player.prototype.update = function() {
 };
 
 /**
- * Defines the hot potatoe flag attribute state
+ * Defines the hot potatoe flag attribute state,
+ * and change sprite texture
  * @param {boolean} hotpotatoe
  */
 HotPotatoe.Player.prototype.setHotPotatoe = function(hotpotatoe) {
     this.isHotPotatoe = hotpotatoe;
+    if (this.sprite) {
+        var newassetId = this.parent.assetIds.players;
+        if (hotpotatoe) {
+            newassetId = this.parent.assetIds.hotpotatoe;
+        } else if (this.isCurrentPlayer) {
+            newassetId = this.parent.assetIds.currentPlayer;
+        }
+
+        // change sprite texture
+        if (this.assetId != newassetId) {
+            this.assetId = newassetId;
+            this.sprite.loadTexture(newassetId, 0);
+        }
+    }
 };
