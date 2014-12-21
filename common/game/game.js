@@ -91,7 +91,7 @@ HotPotatoe.Game.prototype.setUp = function(players) {
     if (Meteor.isClient) {
         //Flag user's player
         for (var j = 0; j < this.players.length; j++) {
-            if (this.players[j].id == Session.get('userId')) {
+            if (this.players[j].id == GamePlayers.playerId()) {
                 this.players[j].isCurrentPlayer = true;
             }
         }
