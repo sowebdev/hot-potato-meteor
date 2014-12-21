@@ -9,5 +9,5 @@ sowebdev:game-players
 sowebdev:game-rooms
 sowebdev:game-rooms-ui
 accounts-password
-accounts-ui
 
+ian:accounts-ui-bootstrap-3

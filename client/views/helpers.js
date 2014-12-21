@@ -1,3 +1,1 @@
-Template.registerHelper('isGameRunning', function(){
-    return false;
-});
+//global view helpers
