@@ -28,6 +28,10 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
  */
 HotPotatoe.Player.prototype.preload = function() {
     var assetName = 'assets/circle-red.png';
+    if (this.isCurrentPlayer) {
+        assetName = 'assets/circle-blue.png';
+    }
+
     this.assetId = 'player' + this.id;
     this.phaser.load.image(this.assetId, assetName, false, 30, 30);
 };
