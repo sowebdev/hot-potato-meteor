@@ -27,7 +27,7 @@ Meteor.startup(function(){
             gamePlayers.push(elem.id);
         });
         var gameId = GamesDb.insert({
-            status: 'running',
+            status: 'pending',
             players: gamePlayers
         });
 
@@ -53,6 +53,10 @@ Meteor.startup(function(){
         //Run server-side game instance
         GameInstances[gameId].setUp(gamePlayers);
         GameInstances[gameId].start();
+
+        GamesDb.update(gameId, {
+            $set: {status: 'running'}
+        });
 
         return gameId;
     };

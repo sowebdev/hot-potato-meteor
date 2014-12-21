@@ -12,6 +12,25 @@ var phaserConfig = {
 
 var game = null;
 
+var updateSyncData = function () {
+    var playersDb = Players.find();
+    playersDb.forEach(function(playerDb) {
+        if (game) {
+            var _player = _.findWhere(game.players, {id: playerDb.id});
+            if (_player) {
+                _player.setHotPotatoe(playerDb.isHotPotatoe);
+                if (_player.sprite) {
+                    _player.sprite.x = playerDb.sprite.x;
+                    _player.sprite.y = playerDb.sprite.y;
+                    _player.sprite.width = playerDb.sprite.width;
+                    _player.sprite.height = playerDb.sprite.height;
+                    _player.sprite.angle = playerDb.sprite.angle;
+                }
+            }
+        }
+    });
+};
+
 // Client receives games he is allowed to see
 Deps.autorun(function(){
     Meteor.subscribe('game', GamePlayers.playerId());
@@ -33,26 +52,10 @@ Deps.autorun(function () {
             game.setUp(gameDb.players);
             game.start();
             Session.set('isGameRunning', true);
+            updateSyncData();
         }
     }
 });
 
 //Sync players changes
-Deps.autorun(function() {
-    var playersDb = Players.find();
-    playersDb.forEach(function(playerDb) {
-        if (game) {
-            var _player = _.findWhere(game.players, {id: playerDb.id});
-            if (_player) {
-                _player.setHotPotatoe(playerDb.isHotPotatoe);
-                if (_player.sprite) {
-                    _player.sprite.x = playerDb.sprite.x;
-                    _player.sprite.y = playerDb.sprite.y;
-                    _player.sprite.width = playerDb.sprite.width;
-                    _player.sprite.height = playerDb.sprite.height;
-                    _player.sprite.angle = playerDb.sprite.angle;
-                }
-            }
-        }
-    });
-});
+Deps.autorun(updateSyncData);
