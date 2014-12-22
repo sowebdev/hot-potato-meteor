@@ -1,4 +1,6 @@
 <template name="gameRoomsContainer">
+    <div class="panel panel-default">
+        <div class="panel-body">
     {{#with currentRoom}}
         {{> roomView}}
     {{else}}
@@ -8,4 +10,6 @@
             {{> playerCreationView}}
         {{/if}}
     {{/with}}
+        </div>
+    </div>
 </template>

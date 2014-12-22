@@ -2,7 +2,7 @@ GamesDb = new Meteor.Collection('game');
 Players = new Meteor.Collection('players');
 
 var phaserConfig = {
-    width: 800,
+    width: 700,
     height: 500,
     renderer: Phaser.AUTO,
     parent: 'gameContainer',

@@ -33,7 +33,7 @@ Meteor.startup(function(){
 
         //Create server-side phaser game instance
         var phaserConfig = {
-            width: 800,
+            width: 700,
             height: 500
         };
         GameInstances[gameId] = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameId);

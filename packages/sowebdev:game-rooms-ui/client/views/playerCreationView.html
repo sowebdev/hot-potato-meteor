@@ -1,8 +1,11 @@
 <template name="playerCreationView">
     {{#if currentUser}}
-        <label for="createPlayerName">Please choose a player name</label>
-        <input type="text" name="createPlayerName" id="createPlayerName"/>
-        <button id="confirmPlayerCreation">OK</button>
+    <form class="form-inline" role="form">
+        <div class="form-group">
+            <input type="text" class="form-control" name="createPlayerName" id="createPlayerName" placeholder="Please choose a player name"/>
+        </div>
+        <button type="submit" id="confirmPlayerCreation" class="btn btn-default">OK</button>
+    </form>
     {{else}}
         You need to log in before you can create a player profile
     {{/if}}
