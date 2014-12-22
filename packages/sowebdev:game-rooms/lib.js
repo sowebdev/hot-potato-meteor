@@ -79,16 +79,14 @@ if (Meteor.isServer) {
     };
 
     var removePlayerFromRoom = function(playerId, roomId) {
-        var removeOptions = {
-            $pull: {
-                players: {
-                    $elemMatch: {
-                        id: playerId
-                    }
-                }
-            }
-        };
-        GameRooms.rooms.update(roomId, removeOptions);
+        var room = GameRooms.rooms.findOne(roomId);
+        if (!room) {
+            throw new Meteor.Error('Room does not exist');
+        }
+        var players = _.reject(room.players, function(elem){
+            return elem.id == playerId;
+        });
+        GameRooms.rooms.update(roomId, {$set: {players: players}});
         //TODO decide what to do if player is owner of the room, probably assign another user.
     };
 
@@ -113,6 +111,17 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         setCurrentRoom: setCurrentRoom,
+        leaveRoom: function () {
+            var player = GamePlayers.player();
+            if (!player) {
+                throw new Meteor.Error('User has no player profile');
+            }
+            var room = GameRooms.currentRoom();
+            if (!room) {
+                throw new Meteor.Error('Player is not in a room');
+            }
+            removePlayerFromRoom(player._id, room._id);
+        },
         createRoom: function (name) {
             var roomId = createRoom(name);
             addPlayerToRoom(GamePlayers.playerId(), roomId, true);
@@ -158,5 +167,12 @@ if (Meteor.isClient) {
      */
     GameRooms.joinRoom = function (id) {
         return Meteor.call('setCurrentRoom', id);
+    };
+    /**
+     * @summary Makes current player leave current room
+     * @locus Client
+     */
+    GameRooms.leaveRoom = function () {
+        return Meteor.call('leaveRoom');
     };
 }

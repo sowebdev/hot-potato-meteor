@@ -15,5 +15,9 @@ Template.roomView.events({
     'click .startGame': function(){
         Meteor.call('startGame');
         return false;
+    },
+    'click .leave': function(){
+        GameRooms.leaveRoom();
+        return false;
     }
 });

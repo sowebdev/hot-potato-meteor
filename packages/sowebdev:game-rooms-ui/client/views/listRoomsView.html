@@ -1,14 +1,18 @@
 <template name="listRoomsView">
-    <div>
-        <label for="createRoom">Please choose a game room name</label>
-        <input type="text" name="createRoom" id="createRoom"/>
-        <button id="confirmRoomCreation">OK</button>
-    </div>
-    <div>
-        <ul>
+    <form class="form-inline" role="form">
+        <div class="form-group">
+            <input type="text" name="createRoom" id="createRoom" class="form-control" placeholder="Create a room"/>
+        </div>
+        <button type="submit" id="confirmRoomCreation" class="btn btn-default">OK</button>
+    </form>
+    {{#if gameRooms}}
+    <h3>Available rooms</h3>
+    <table class="table table-striped">
+        <tr>
         {{#each gameRooms}}
-            <li>{{name}} - <a href="" class="chooseRoom">choose</a></li>
+            <td>{{name}}</td><td><a href="#" class="chooseRoom">Choose</a></td>
         {{/each}}
-        </ul>
-    </div>
+        </tr>
+    </table>
+    {{/if}}
 </template>

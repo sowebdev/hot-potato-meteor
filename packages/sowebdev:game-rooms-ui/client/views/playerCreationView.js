@@ -4,5 +4,6 @@ Template.playerCreationView.events({
         if (name) {
             GamePlayers.createPlayer(name);
         }
+        return false;
     }
 });
