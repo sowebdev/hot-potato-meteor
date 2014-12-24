@@ -10,6 +10,7 @@ Package.onUse(function(api) {
     api.use('sowebdev:game-rooms');
     api.addFiles([
         'client/views/gameRoomsContainer.html',
+        'client/views/gameRoomsContainer.js',
         'client/views/playerCreationView.html',
         'client/views/playerCreationView.js',
         'client/views/listRoomsView.html',
