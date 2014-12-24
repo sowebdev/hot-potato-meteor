@@ -10,7 +10,7 @@
     <table class="table table-striped">
         <tr>
         {{#each gameRooms}}
-            <td>{{name}}</td><td><a href="#" class="chooseRoom">Choose</a></td>
+            <td>{{name}}</td><td>{{formatPlayerCount countPlayers}}</td><td><a href="#" class="chooseRoom">Choose</a></td>
         {{/each}}
         </tr>
     </table>
