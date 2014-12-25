@@ -37,14 +37,27 @@ HotPotatoe.Player.prototype.preload = function() {
  * Create player
  */
 HotPotatoe.Player.prototype.create = function() {
+    var self = this;
     var x = Math.floor((Math.random() * 900) + 1);
     var y = Math.floor((Math.random() * 500) + 1);
     this.sprite = this.phaser.add.sprite(x, y, this.assetId);
+    this.sprite.playerId = this.id;
 
     if (Meteor.isServer) {
         // We need to enable physics on the player
         this.phaser.physics.p2.enable(this.sprite);
         this.sprite.body.setCircle(15);
+
+        // TODO Manage conflict, because this event is triggered on both sprites in same time
+        this.sprite.body.onEndContact.add(function(playerCollided) {
+            if(playerCollided && playerCollided.sprite) {
+                var _playerCollided = _.findWhere(self.parent.players, {id: playerCollided.sprite.playerId});
+                if(_playerCollided.isHotPotatoe || self.isHotPotatoe) {
+                    _playerCollided.setHotPotatoe(true);
+                    self.setHotPotatoe(false);
+                }
+            }
+        });
     } else {
         //We need to center anchor on client because
         //when we set a p2 physics body on this sprite on server
@@ -85,9 +98,7 @@ HotPotatoe.Player.prototype.update = function() {
     }
 
     if (Meteor.isClient) {
-        if (this.isHotPotatoe && this.isCurrentPlayer) {
-            this.notifyText.visible = true;
-        }
+        this.notifyText.visible = this.isHotPotatoe && this.isCurrentPlayer;
     }
 };
 
