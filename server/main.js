@@ -28,7 +28,8 @@ Meteor.startup(function(){
         });
         var gameId = GamesDb.insert({
             status: 'pending',
-            players: gamePlayers
+            players: gamePlayers,
+            secondsLeft: 30
         });
 
         //Create server-side phaser game instance

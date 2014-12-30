@@ -62,6 +62,43 @@ HotPotatoe.Game = function(game, id) {
                 self.cursors.down.onDown.add(InputManager.keyDown, self.cursors.down);
                 self.cursors.down.onUp.add(InputManager.keyUp, self.cursors.down);
             }
+
+            //Display countdown
+            if (Meteor.isClient) {
+                var gameDb = GamesDb.findOne(self.id);
+                self.countdownText = self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.centerY, gameDb.secondsLeft + " seconds left !", {
+                    font: "26px Arial",
+                    fill: "#ff0044",
+                    align: "center"
+                });
+
+                self.countdownText.anchor.setTo(0.5, 0.5);
+            }
+
+            if (Meteor.isServer) {
+                self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
+                    var gameDb = GamesDb.findOne(this.id);
+                    if (gameDb.secondsLeft > 0) {
+                        GamesDb.update(this.id, {
+                            $inc: {secondsLeft: -1}
+                        });
+                    } else {
+                        if (this.phaser.state.current != 'end') {
+                            this.phaser.state.start('end');
+                        }
+                    }
+                }, self);
+            } else {
+                self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
+                    var gameDb = GamesDb.findOne(this.id);
+                    if (gameDb.secondsLeft == 0) {
+                        if (this.phaser.state.current != 'end') {
+                            this.phaser.state.start('end');
+                        }
+                    }
+                }, self);
+            }
+
             self.createDone = true;
         },
         update: function() {
@@ -75,10 +112,28 @@ HotPotatoe.Game = function(game, id) {
                     SyncPlayer.update(self.players[i]);
                 }
             }
+
+            //Update countdown
+            if (Meteor.isClient) {
+                var gameDb = GamesDb.findOne(self.id);
+                self.countdownText.setText(gameDb.secondsLeft + " seconds left !");
+            }
         }
     };
 
     this.phaser.state.add('main', mainState);
+
+    var endState = {
+        create: function() {
+            if (Meteor.isClient) {
+                var style = {font: "65px Arial", fill: "#ff0044", align: "center"};
+                var text = game.add.text(game.world.centerX, game.world.centerY, "Game Over", style);
+                text.anchor.set(0.5);
+            }
+        }
+    };
+
+    this.phaser.state.add('end', endState);
 };
 
 /**
