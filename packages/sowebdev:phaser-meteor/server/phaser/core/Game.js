@@ -278,7 +278,7 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
     }
     else
     {
-        this.config = { enableDebug: true };
+        this.config = { enableDebug: false };//on server we should not enable debug
 
         if (typeof width !== 'undefined')
         {
@@ -342,7 +342,7 @@ Phaser.Game.prototype.parseConfig = function (config) {
 
     if (typeof config['enableDebug'] === 'undefined')
     {
-        this.config.enableDebug = true;
+        this.config.enableDebug = false;//On server we should not enable this
     }
 
     if (config['width'])

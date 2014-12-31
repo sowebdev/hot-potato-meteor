@@ -38,7 +38,8 @@ document = {
                             return {};
                         },
                         setTransform: function(m11, m12, m21, m22, dx, dy) {},
-                        drawImage: function(img_elem,dx_or_sx,dy_or_sy,dw_or_sw,dh_or_sh,dx,dy,dw,dh) {}
+                        drawImage: function(img_elem,dx_or_sx,dy_or_sy,dw_or_sw,dh_or_sh,dx,dy,dw,dh) {},
+                        clearRect: function(x, y, width, height){}
                     };
                 },
                 getBoundingClientRect: function () {
