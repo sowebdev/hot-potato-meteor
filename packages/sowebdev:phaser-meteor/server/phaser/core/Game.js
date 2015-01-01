@@ -504,6 +504,11 @@ Phaser.Game.prototype.update = function (time) {
 
     this.time.update(time);
 
+    if (!this.raf.isRunning) {
+        //small hack on meteor server to prevent running one last update after phaser instance was destroyed
+        return;
+    }
+
     if (!this._paused && !this.pendingStep)
     {
         if (this.stepping)

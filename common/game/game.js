@@ -130,6 +130,25 @@ HotPotatoe.Game = function(game, id) {
                 var text = game.add.text(game.world.centerX, game.world.centerY, "Game Over", style);
                 text.anchor.set(0.5);
             }
+
+            if (Meteor.isServer) {
+                //Terminate game
+                self.phaser.time.events.add(Phaser.Timer.SECOND * 10, function() {
+                    var gameId = self.id;
+                    Players.remove({gameId: gameId});
+                    GamesDb.update(gameId, {
+                        $set: {status: 'end'}
+                    });
+                    GameInstances.splice(gameId, 1);
+                    GameInstances[gameId].phaser.destroy();
+                    GameRooms.rooms.update({game: gameId}, {
+                        $set: {
+                            game: null
+                        }
+                    });
+                    console.log('Game ' + gameId + ' was destroyed');
+                }, self);
+            }
         }
     };
 

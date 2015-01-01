@@ -1,7 +1,7 @@
 Package.describe({
     name: 'sowebdev:phaser-meteor',
     summary: "Phaser on Meteor",
-    version: "0.1.2"
+    version: "0.1.3"
 });
 
 Package.onUse(function (api) {

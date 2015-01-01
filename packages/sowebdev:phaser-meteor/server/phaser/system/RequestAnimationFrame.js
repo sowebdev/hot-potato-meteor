@@ -43,7 +43,10 @@ Phaser.RequestAnimationFrame.prototype.updateSetTimeout = function () {
 
     this.game.update(Date.now());
 
-    this._timeOutID = Meteor.setTimeout(this._onLoop, this.game.time.timeToCall);
+    if (this.isRunning) {
+        //small hack on meteor server to prevent running code after phaser instance was destroyed
+        this._timeOutID = Meteor.setTimeout(this._onLoop, this.game.time.timeToCall);
+    }
 
 };
 

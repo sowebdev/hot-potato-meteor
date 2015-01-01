@@ -54,7 +54,8 @@ document = {
                         y: 0
                     };
                 },
-                addEventListener: function(type,listener,useCapture) {}
+                addEventListener: function(type,listener,useCapture) {},
+                removeEventListener: function(type,listener,useCapture) {}
             };
         }
         return element;
