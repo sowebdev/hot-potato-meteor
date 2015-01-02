@@ -38,7 +38,7 @@ HotPotatoe.Player.prototype.preload = function() {
  */
 HotPotatoe.Player.prototype.create = function() {
     var self = this;
-    var x = Math.floor((Math.random() * 900) + 1);
+    var x = Math.floor((Math.random() * 700) + 1);
     var y = Math.floor((Math.random() * 500) + 1);
     this.sprite = this.phaser.add.sprite(x, y, this.assetId);
     this.sprite.playerId = this.id;
@@ -48,16 +48,17 @@ HotPotatoe.Player.prototype.create = function() {
         this.phaser.physics.p2.enable(this.sprite);
         this.sprite.body.setCircle(15);
 
-        // TODO Manage conflict, because this event is triggered on both sprites in same time
-        this.sprite.body.onEndContact.add(function(playerCollided) {
-            if(playerCollided && playerCollided.sprite) {
-                var _playerCollided = _.findWhere(self.parent.players, {id: playerCollided.sprite.playerId});
-                if(_playerCollided.isHotPotatoe || self.isHotPotatoe) {
+        // Adding a collision event for player that is hot potatoe.
+        // addOnce() will add a callback which will be removed after executed
+        if(this.isHotPotatoe) {
+            this.sprite.body.onBeginContact.addOnce(function (playerCollided) {
+                if (playerCollided && playerCollided.sprite) {
+                    var _playerCollided = _.findWhere(self.parent.players, {id: playerCollided.sprite.playerId});
                     _playerCollided.setHotPotatoe(true);
                     self.setHotPotatoe(false);
                 }
-            }
-        });
+            });
+        }
     } else {
         //We need to center anchor on client because
         //when we set a p2 physics body on this sprite on server
@@ -121,6 +122,20 @@ HotPotatoe.Player.prototype.setHotPotatoe = function(hotpotatoe) {
         if (this.assetId != newassetId) {
             this.assetId = newassetId;
             this.sprite.loadTexture(newassetId, 0);
+        }
+
+        // When a player is defined hot potatoe, a collision event is added after a delay
+        // to make possible jumping the hot potatoe from player to player
+        if (hotpotatoe && Meteor.isServer) {
+            this.phaser.time.events.repeat(600, 1, function() {
+                this.sprite.body.onBeginContact.addOnce(function (playerCollided) {
+                    if (playerCollided && playerCollided.sprite) {
+                        var _playerCollided = _.findWhere(this.parent.players, {id: playerCollided.sprite.playerId});
+                        _playerCollided.setHotPotatoe(true);
+                        this.setHotPotatoe(false);
+                    }
+                }, this);
+            }, this);
         }
     }
 };
