@@ -55,9 +55,9 @@ HotPotatoe.Player.prototype.create = function() {
                 if (playerCollided && playerCollided.sprite) {
                     var _playerCollided = _.findWhere(self.parent.players, {id: playerCollided.sprite.playerId});
                     _playerCollided.setHotPotatoe(true);
-                    self.setHotPotatoe(false);
+                    this.setHotPotatoe(false);
                 }
-            });
+            }, this);
         }
     } else {
         //We need to center anchor on client because
@@ -67,6 +67,16 @@ HotPotatoe.Player.prototype.create = function() {
 
         this.notifyText = this.phaser.add.text(0, 0, 'You are the Hot Potatoe !', {fill: 'white'});
         this.notifyText.visible = false;
+
+        // Display player name
+        var currentRoom =  GameRooms.currentRoom();
+        var _player =_.findWhere(currentRoom.players, {id: this.id});
+        this.playerNameText = this.phaser.add.text(x, y + 23 , _player.name.substring(0, 15), {
+            font: "14px Arial",
+            fill: "#ffffff",
+            align: "center"
+        });
+        this.playerNameText.anchor.setTo(0.5, 0.5);
     }
 
     // If this player is controlled by the user
@@ -100,6 +110,8 @@ HotPotatoe.Player.prototype.update = function() {
 
     if (Meteor.isClient) {
         this.notifyText.visible = this.isHotPotatoe && this.isCurrentPlayer;
+        this.playerNameText.x = this.sprite.x;
+        this.playerNameText.y = this.sprite.y + 23;
     }
 };
 
