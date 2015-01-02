@@ -21,8 +21,6 @@ GameInstance.createGame = function (id) {
         GameInstance.game = new HotPotatoe.Game(new Phaser.Game(GameInstance.phaserConfig), id);
         GameInstance.game.setUp(gameDb.players);
         GameInstance.game.start();
-        //Sync players changes
-        Tracker.autorun(GameInstance.updateSyncData);
     }
 };
 GameInstance.destroyGame = function () {
@@ -62,6 +60,7 @@ GameInstance.updateSyncData = function () {
                     _player.sprite.width = playerDb.sprite.width;
                     _player.sprite.height = playerDb.sprite.height;
                     _player.sprite.angle = playerDb.sprite.angle;
+                    _player.sprite.visible = true;
                 }
             }
         });

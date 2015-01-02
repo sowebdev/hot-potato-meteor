@@ -41,6 +41,10 @@ HotPotatoe.Player.prototype.create = function() {
     var x = Math.floor((Math.random() * 700) + 1);
     var y = Math.floor((Math.random() * 500) + 1);
     this.sprite = this.phaser.add.sprite(x, y, this.assetId);
+    if (Meteor.isClient) {
+        //On client we hide players until their positions get synced
+        this.sprite.visible = false;
+    }
     this.sprite.playerId = this.id;
 
     if (Meteor.isServer) {
@@ -77,6 +81,7 @@ HotPotatoe.Player.prototype.create = function() {
             align: "center"
         });
         this.playerNameText.anchor.setTo(0.5, 0.5);
+        this.playerNameText.visible = false;//will be displayed when player positions are synced
     }
 
     // If this player is controlled by the user
@@ -112,6 +117,9 @@ HotPotatoe.Player.prototype.update = function() {
         this.notifyText.visible = this.isHotPotatoe && this.isCurrentPlayer;
         this.playerNameText.x = this.sprite.x;
         this.playerNameText.y = this.sprite.y + 23;
+        if (this.sprite.visible) {
+            this.playerNameText.visible = true;
+        }
     }
 };
 

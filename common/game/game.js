@@ -49,6 +49,10 @@ HotPotatoe.Game = function(game, id) {
                     SyncPlayer.insert(self.id, self.players[i]);
                 }
             }
+            if (Meteor.isClient) {
+                //Sync players changes
+                Tracker.autorun(GameInstance.updateSyncData);
+            }
 
             if (Meteor.isClient) {
                 //Handling input sent to server
