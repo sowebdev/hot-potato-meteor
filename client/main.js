@@ -20,7 +20,7 @@ GameInstance.game = null;
 GameInstance.createGame = function (id) {
     //Subscribe to players sync for current game
     Meteor.subscribe('players', id);
-    if (!this.game) {
+    if (!GameInstance.game) {
         //Run the game
         var gameDb = GamesDb.findOne(id);
         GameInstance.game = new HotPotatoe.Game(new Phaser.Game(phaserConfig), id);
@@ -28,6 +28,12 @@ GameInstance.createGame = function (id) {
         GameInstance.game.start();
         //Sync players changes
         Deps.autorun(updateSyncData);
+    }
+};
+GameInstance.destroyGame = function () {
+    if (GameInstance.game) {
+        GameInstance.game.phaser.destroy();
+        GameInstance.game = null;
     }
 };
 GameInstance.observeGameStatus = function () {
@@ -42,14 +48,17 @@ GameInstance.observeGameStatus = function () {
             if (newDoc.status == 'running' && oldDoc.status != 'running') {
                 GameInstance.createGame(newDoc._id);
             }
+            if (newDoc.status == 'end' && oldDoc.status != 'end') {
+                GameInstance.destroyGame();
+            }
         }
     });
 };
 
 var updateSyncData = function () {
     var playersDb = Players.find();
-    playersDb.forEach(function(playerDb) {
-        if (GameInstance.game) {
+    if (GameInstance.game) {
+        playersDb.forEach(function(playerDb) {
             var _player = _.findWhere(GameInstance.game.players, {id: playerDb.id});
             if (_player) {
                 _player.setHotPotatoe(playerDb.isHotPotatoe);
@@ -61,8 +70,8 @@ var updateSyncData = function () {
                     _player.sprite.angle = playerDb.sprite.angle;
                 }
             }
-        }
-    });
+        });
+    }
 };
 
 // Observe game status change
