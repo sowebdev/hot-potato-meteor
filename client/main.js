@@ -1,6 +1,11 @@
 GamesDb = new Meteor.Collection('game');
 Players = new Meteor.Collection('players');
 
+// Client receives games where he is a player
+Deps.autorun(function(){
+    Meteor.subscribe('game', GamePlayers.playerId());
+});
+
 var phaserConfig = {
     width: 700,
     height: 500,
@@ -10,13 +15,42 @@ var phaserConfig = {
     disableVisibilityChange: true
 };
 
-var game = null;
+GameInstance = {};
+GameInstance.game = null;
+GameInstance.createGame = function (id) {
+    //Subscribe to players sync for current game
+    Meteor.subscribe('players', id);
+    if (!this.game) {
+        //Run the game
+        var gameDb = GamesDb.findOne(id);
+        GameInstance.game = new HotPotatoe.Game(new Phaser.Game(phaserConfig), id);
+        GameInstance.game.setUp(gameDb.players);
+        GameInstance.game.start();
+        //Sync players changes
+        Deps.autorun(updateSyncData);
+    }
+};
+GameInstance.observeGameStatus = function () {
+    var gamesDb = GamesDb.find();
+    gamesDb.observe({
+        added: function(doc){
+            if (doc.status == 'running') {
+                GameInstance.createGame(doc._id);
+            }
+        },
+        changed: function(newDoc, oldDoc){
+            if (newDoc.status == 'running' && oldDoc.status != 'running') {
+                GameInstance.createGame(newDoc._id);
+            }
+        }
+    });
+};
 
 var updateSyncData = function () {
     var playersDb = Players.find();
     playersDb.forEach(function(playerDb) {
-        if (game) {
-            var _player = _.findWhere(game.players, {id: playerDb.id});
+        if (GameInstance.game) {
+            var _player = _.findWhere(GameInstance.game.players, {id: playerDb.id});
             if (_player) {
                 _player.setHotPotatoe(playerDb.isHotPotatoe);
                 if (_player.sprite) {
@@ -31,31 +65,5 @@ var updateSyncData = function () {
     });
 };
 
-// Client receives games he is allowed to see
-Deps.autorun(function(){
-    Meteor.subscribe('game', GamePlayers.playerId());
-});
-
-Session.setDefault('isGameRunning', false);
-
 // Observe game status change
-Deps.autorun(function () {
-    var gameDb = GamesDb.findOne({
-        status: 'running'
-    });
-    if (gameDb) {
-        //Subscribe to players sync for current game
-        Meteor.subscribe('players', gameDb._id);
-        if (Session.get('isGameRunning') === false) {
-            //Run the game
-            game = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameDb._id);
-            game.setUp(gameDb.players);
-            game.start();
-            Session.set('isGameRunning', true);
-            updateSyncData();
-        }
-    }
-});
-
-//Sync players changes
-Deps.autorun(updateSyncData);
+GameInstance.observeGameStatus();
