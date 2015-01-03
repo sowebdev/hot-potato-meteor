@@ -4,10 +4,10 @@ Players = new Meteor.Collection('players', {connection: null});
 //Store every server-side game instance in following array
 GameInstances = [];
 
-// Server publishes games where the client is registered
-Meteor.publish('game', function (playerId) {
+// Server publishes games of the player's room
+Meteor.publish('game', function (roomId) {
     return GamesDb.find({
-        players: playerId
+        room: roomId
     });
 });
 
@@ -29,7 +29,8 @@ Meteor.startup(function(){
         var gameId = GamesDb.insert({
             status: 'pending',
             players: gamePlayers,
-            secondsLeft: 30
+            secondsLeft: 30,
+            room: roomId
         });
 
         //Create server-side phaser game instance

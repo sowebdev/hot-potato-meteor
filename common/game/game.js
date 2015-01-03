@@ -16,6 +16,7 @@ HotPotatoe.Game = function(game, id) {
     this.id = id;
 
     this.players = [];
+    this.isSpectatorMode = false;
 
     //small fix on server to avoid update before create was called
     this.createDone = false;
@@ -55,16 +56,25 @@ HotPotatoe.Game = function(game, id) {
             }
 
             if (Meteor.isClient) {
-                //Handling input sent to server
-                self.cursors = self.phaser.input.keyboard.createCursorKeys();
-                self.cursors.left.onDown.add(InputManager.keyDown, self.cursors.left);
-                self.cursors.left.onUp.add(InputManager.keyUp, self.cursors.left);
-                self.cursors.right.onDown.add(InputManager.keyDown, self.cursors.right);
-                self.cursors.right.onUp.add(InputManager.keyUp, self.cursors.right);
-                self.cursors.up.onDown.add(InputManager.keyDown, self.cursors.up);
-                self.cursors.up.onUp.add(InputManager.keyUp, self.cursors.up);
-                self.cursors.down.onDown.add(InputManager.keyDown, self.cursors.down);
-                self.cursors.down.onUp.add(InputManager.keyUp, self.cursors.down);
+                if (self.isSpectatorMode) {
+                    self.countdownText = self.phaser.add.text(self.phaser.world.centerX, 10, "Spectator", {
+                        font: "16px Arial",
+                        fill: "#ffffff",
+                        align: "center"
+                    });
+                    self.countdownText.anchor.setTo(0.5, 0.5);
+                } else {
+                    //Handling input sent to server
+                    self.cursors = self.phaser.input.keyboard.createCursorKeys();
+                    self.cursors.left.onDown.add(InputManager.keyDown, self.cursors.left);
+                    self.cursors.left.onUp.add(InputManager.keyUp, self.cursors.left);
+                    self.cursors.right.onDown.add(InputManager.keyDown, self.cursors.right);
+                    self.cursors.right.onUp.add(InputManager.keyUp, self.cursors.right);
+                    self.cursors.up.onDown.add(InputManager.keyDown, self.cursors.up);
+                    self.cursors.up.onUp.add(InputManager.keyUp, self.cursors.up);
+                    self.cursors.down.onDown.add(InputManager.keyDown, self.cursors.down);
+                    self.cursors.down.onUp.add(InputManager.keyUp, self.cursors.down);
+                }
             }
 
             //Display countdown
@@ -133,6 +143,15 @@ HotPotatoe.Game = function(game, id) {
                 var style = {font: "65px Arial", fill: "#ff0044", align: "center"};
                 var text = game.add.text(game.world.centerX, game.world.centerY, "Game Over", style);
                 text.anchor.set(0.5);
+
+                if (self.isSpectatorMode) {
+                    self.countdownText = self.phaser.add.text(self.phaser.world.centerX, 10, "Spectator", {
+                        font: "16px Arial",
+                        fill: "#ffffff",
+                        align: "center"
+                    });
+                    self.countdownText.anchor.setTo(0.5, 0.5);
+                }
             }
 
             if (Meteor.isServer) {
@@ -165,6 +184,11 @@ HotPotatoe.Game = function(game, id) {
  * @param {string[]} players
  */
 HotPotatoe.Game.prototype.setUp = function(players) {
+
+    if (players.indexOf(GamePlayers.playerId()) == -1) {
+        this.isSpectatorMode = true;
+    }
+
     //Add players to game
     for (var i = 0; i < players.length; i++) {
         this.players.push(new HotPotatoe.Player(this, players[i]));
@@ -174,7 +198,7 @@ HotPotatoe.Game.prototype.setUp = function(players) {
         this.players[new Phaser.RandomDataGenerator().between(0, this.players.length - 1)].setHotPotatoe(true);
     }
 
-    if (Meteor.isClient) {
+    if (Meteor.isClient && !this.isSpectatorMode) {
         //Flag user's player
         for (var j = 0; j < this.players.length; j++) {
             if (this.players[j].id == GamePlayers.playerId()) {
