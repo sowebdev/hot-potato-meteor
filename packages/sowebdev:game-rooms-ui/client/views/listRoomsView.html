@@ -8,11 +8,21 @@
     {{#if gameRooms}}
     <h3>Available rooms</h3>
     <table class="table table-striped">
-        <tr>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Players</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
         {{#each gameRooms}}
-            <td>{{name}}</td><td>{{formatPlayerCount countPlayers}}</td><td><a href="#" class="chooseRoom">Choose</a></td>
+            <tr>
+                <td>{{name}}</td><td>{{status}}</td><td>{{formatPlayerCount countPlayers}}</td><td><a href="#" class="chooseRoom">Join</a></td>
+            </tr>
         {{/each}}
-        </tr>
+        </tbody>
     </table>
     {{/if}}
 </template>

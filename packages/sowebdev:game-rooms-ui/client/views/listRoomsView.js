@@ -5,6 +5,12 @@ Template.listRoomsView.helpers({
     countPlayers: function () {
         return this.players.length;
     },
+    status: function () {
+        if (!this.game) {
+            return 'Pending';
+        }
+        return 'Running';
+    },
     formatPlayerCount: function (count) {
         var countString = count + ' player';
         if (count > 1) {
