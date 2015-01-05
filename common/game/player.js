@@ -15,7 +15,8 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
     this.phaser = game.phaser;
     this.id = id;
     this.isCurrentPlayer = false;
-    this.speed = 10;
+    this.force = 15;
+    this.maxVelocity = 200;
     this.isHotPotatoe = false;
 
     if (typeof isCurrentPlayer !== 'undefined') {
@@ -90,14 +91,27 @@ HotPotatoe.Player.prototype.update = function() {
     //Handle player input and update sprite sync
     if (Meteor.isServer) {
         if (UserActions[this.id].cursors.left.isDown) {
-            this.sprite.body.data.force[0] += this.speed;
+            this.sprite.body.data.force[0] += this.force;
         } else if (UserActions[this.id].cursors.right.isDown) {
-            this.sprite.body.data.force[0] -= this.speed;
+            this.sprite.body.data.force[0] -= this.force;
         }
         if (UserActions[this.id].cursors.up.isDown) {
-            this.sprite.body.data.force[1] += this.speed;
+            this.sprite.body.data.force[1] += this.force;
         } else if (UserActions[this.id].cursors.down.isDown) {
-            this.sprite.body.data.force[1] -= this.speed;
+            this.sprite.body.data.force[1] -= this.force;
+        }
+        // Apply max velocity
+        if (this.sprite.body.velocity.x < -this.maxVelocity) {
+            this.sprite.body.velocity.x = -this.maxVelocity;
+        }
+        if (this.sprite.body.velocity.x > this.maxVelocity) {
+            this.sprite.body.velocity.x = this.maxVelocity;
+        }
+        if (this.sprite.body.velocity.y < -this.maxVelocity) {
+            this.sprite.body.velocity.y = -this.maxVelocity;
+        }
+        if (this.sprite.body.velocity.y > this.maxVelocity) {
+            this.sprite.body.velocity.y = this.maxVelocity;
         }
     }
 
