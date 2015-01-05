@@ -37,7 +37,6 @@ HotPotatoe.Player.prototype.preload = function() {
  * Create player
  */
 HotPotatoe.Player.prototype.create = function() {
-    var self = this;
     var x = Math.floor((Math.random() * 700) + 1);
     var y = Math.floor((Math.random() * 500) + 1);
     this.sprite = this.phaser.add.sprite(x, y, this.assetId);
@@ -52,16 +51,9 @@ HotPotatoe.Player.prototype.create = function() {
         this.phaser.physics.p2.enable(this.sprite);
         this.sprite.body.setCircle(15);
 
-        // Adding a collision event for player that is hot potatoe.
-        // addOnce() will add a callback which will be removed after executed
+        // Adding a collision event for player that is hot potato
         if(this.isHotPotatoe) {
-            this.sprite.body.onBeginContact.addOnce(function (playerCollided) {
-                if (playerCollided && playerCollided.sprite) {
-                    var _playerCollided = _.findWhere(self.parent.players, {id: playerCollided.sprite.playerId});
-                    _playerCollided.setHotPotatoe(true);
-                    this.setHotPotatoe(false);
-                }
-            }, this);
+            this.jumpingHotPotatoSignalBinding = this.sprite.body.onBeginContact.add(this.jumpingHotPotatoCallback, this);
         }
     } else {
         //We need to center anchor on client because
@@ -140,18 +132,28 @@ HotPotatoe.Player.prototype.setHotPotatoe = function(hotpotatoe) {
             this.sprite.loadTexture(newassetId, 0);
         }
 
-        // When a player is defined hot potatoe, a collision event is added after a delay
-        // to make possible jumping the hot potatoe from player to player
+        // When a player is defined hot potato, a collision event is added after a delay
+        // to make possible jumping the hot potato from player to player
         if (hotpotatoe && Meteor.isServer) {
             this.phaser.time.events.repeat(600, 1, function() {
-                this.sprite.body.onBeginContact.addOnce(function (playerCollided) {
-                    if (playerCollided && playerCollided.sprite) {
-                        var _playerCollided = _.findWhere(this.parent.players, {id: playerCollided.sprite.playerId});
-                        _playerCollided.setHotPotatoe(true);
-                        this.setHotPotatoe(false);
-                    }
-                }, this);
+                this.jumpingHotPotatoSignalBinding = this.sprite.body.onBeginContact.add(this.jumpingHotPotatoCallback, this);
             }, this);
         }
+    }
+
+
+};
+
+/**
+ * Callback which is called when a player collides with an object
+ *
+ * @param {Phaser.Physics.P2.Body} objectCollided
+ */
+HotPotatoe.Player.prototype.jumpingHotPotatoCallback = function(objectCollided) {
+    if (objectCollided && objectCollided.sprite) {
+        var _playerCollided = _.findWhere(this.parent.players, {id: objectCollided.sprite.playerId});
+        _playerCollided.setHotPotatoe(true);
+        this.setHotPotatoe(false);
+        this.jumpingHotPotatoSignalBinding.detach();
     }
 };
