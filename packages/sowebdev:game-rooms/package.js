@@ -1,7 +1,7 @@
 Package.describe({
     name: 'sowebdev:game-rooms',
     summary: 'A simple game rooms system for Meteor',
-    version: '0.2.0'
+    version: '0.3.0'
 });
 
 Package.onUse(function (api) {

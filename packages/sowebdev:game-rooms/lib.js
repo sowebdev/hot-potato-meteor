@@ -172,6 +172,15 @@ if (Meteor.isServer) {
 }
 
 if (Meteor.isClient) {
+
+    /**
+     * @summary Override this to define a function which will be used to check if a game can be started
+     * @locus Client
+     * @param {String} roomId Identifier of the room
+     * @return boolean
+     */
+    GameRooms.authorizeGameStartCallback = function (roomId) {return true};
+
     /**
      * @summary Creates a room for current player
      * @param {string} name - Room's name

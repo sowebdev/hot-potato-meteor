@@ -8,6 +8,13 @@ Template.roomView.helpers({
             return true;
         }
         return false;
+    },
+    gameCanStart: function() {
+        var currentRoomId = GameRooms.currentRoomId();
+        if (currentRoomId) {
+            return GameRooms.authorizeGameStartCallback(currentRoomId);
+        }
+        return false;
     }
 });
 

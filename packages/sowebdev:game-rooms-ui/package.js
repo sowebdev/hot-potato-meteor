@@ -1,7 +1,7 @@
 Package.describe({
     name: 'sowebdev:game-rooms-ui',
     summary: 'UI for the game rooms package',
-    version: '0.2.0'
+    version: '0.3.0'
 });
 
 Package.onUse(function(api) {
