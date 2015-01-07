@@ -69,9 +69,6 @@ HotPotatoe.Player.prototype.create = function() {
         //the anchor is centered implicitly
         this.sprite.anchor.setTo(0.5, 0.5);
 
-        this.notifyText = this.phaser.add.text(0, 0, 'You are the Hot Potatoe !', {fill: 'white'});
-        this.notifyText.visible = false;
-
         // Display player name
         var currentRoom =  GameRooms.currentRoom();
         var _player =_.findWhere(currentRoom.players, {id: this.id});
@@ -123,7 +120,6 @@ HotPotatoe.Player.prototype.update = function() {
     }
 
     if (Meteor.isClient) {
-        this.notifyText.visible = this.isHotPotatoe && this.isCurrentPlayer;
         this.playerNameText.x = this.sprite.x;
         this.playerNameText.y = this.sprite.y + 23;
         if (this.sprite.visible) {
