@@ -174,7 +174,7 @@ HotPotatoe.Player.prototype.setHotPotatoe = function(hotpotatoe) {
  * @param {Phaser.Physics.P2.Body} objectCollided
  */
 HotPotatoe.Player.prototype.jumpingHotPotatoCallback = function(objectCollided) {
-    if (objectCollided && objectCollided.sprite) {
+    if (objectCollided && objectCollided.sprite && objectCollided.sprite.playerId) {
         var _playerCollided = _.findWhere(this.parent.players, {id: objectCollided.sprite.playerId});
         _playerCollided.setHotPotatoe(true);
         this.setHotPotatoe(false);
