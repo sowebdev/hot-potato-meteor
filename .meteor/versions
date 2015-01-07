@@ -48,7 +48,7 @@ service-configuration@1.0.3
 session@1.0.5
 sha@1.0.2
 sowebdev:game-players@0.1.0
-sowebdev:game-rooms@0.1.0
+sowebdev:game-rooms@0.2.0
 sowebdev:game-rooms-ui@0.2.0
 sowebdev:phaser-meteor@0.1.3
 spacebars@1.0.4
