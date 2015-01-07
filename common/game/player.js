@@ -44,6 +44,13 @@ HotPotatoe.Player.prototype.create = function() {
     if (Meteor.isClient) {
         //On client we hide players until their positions get synced
         this.sprite.visible = false;
+
+        this.halo = this.phaser.add.graphics(x, y);
+        this.halo.lineStyle(1, 0xffffff);
+        this.halo.drawCircle(0, 0, 20);
+        this.halo.visible = false;
+        // with phaser 2.2, repeat value = -1 for unlimited repeat
+        this.phaser.add.tween(this.halo.scale).to( { x: 1.5, y: 1.5 }, 600, Phaser.Easing.Linear.None, true, 0, 100, true);
     }
     this.sprite.playerId = this.id;
 
@@ -122,6 +129,9 @@ HotPotatoe.Player.prototype.update = function() {
         if (this.sprite.visible) {
             this.playerNameText.visible = true;
         }
+        this.halo.visible = this.isHotPotatoe && this.sprite.visible;
+        this.halo.x = this.sprite.x;
+        this.halo.y = this.sprite.y;
     }
 };
 
