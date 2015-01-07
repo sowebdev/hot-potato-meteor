@@ -47,6 +47,21 @@ GameRooms.currentRoom = function () {
 
 if (Meteor.isServer) {
 
+    /**
+     * @summary Override this to define a function which will start a new game instance
+     * @locus Server
+     * @param {String} roomId Identifier of the room
+     */
+    GameRooms.startGameCallback = function (roomId) {};
+
+    /**
+     * @summary Override this to define a function which will be triggered when a player leaves a room
+     * @locus Server
+     * @param {String} playerId Identifier of the player
+     * @param {String} roomId Identifier of the room
+     */
+    GameRooms.playerLeavesRoomCallback = function (playerId, roomId) {};
+
     Meteor.publish(null, function() {
         //We publish all rooms
         return GameRooms.rooms.find();
@@ -86,8 +101,20 @@ if (Meteor.isServer) {
         var players = _.reject(room.players, function(elem){
             return elem.id == playerId;
         });
-        GameRooms.rooms.update(roomId, {$set: {players: players}});
-        //TODO decide what to do if player is owner of the room, probably assign another user.
+        var updateFields = {players: players};
+        var deleteRoom = false;
+        if (playerId == room.owner) {
+            if (players.length) {
+                updateFields.owner = _.sample(players).id;
+            } else {
+                deleteRoom = true;
+            }
+        }
+        GameRooms.rooms.update(roomId, {$set: updateFields});
+        GameRooms.playerLeavesRoomCallback(playerId, roomId);
+        if (deleteRoom) {
+            GameRooms.rooms.remove(roomId);
+        }
     };
 
     var setCurrentRoom = function(roomId) {
@@ -101,13 +128,6 @@ if (Meteor.isServer) {
         }
         addPlayerToRoom(GamePlayers.playerId(), room._id);
     };
-
-    /**
-     * @summary Override this to define a function which will start a new game instance
-     * @locus Server
-     * @param {String} roomId Identifier of the room
-     */
-    GameRooms.startGameCallback = function (roomId) {};
 
     Meteor.methods({
         setCurrentRoom: setCurrentRoom,
