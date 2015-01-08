@@ -47,10 +47,10 @@ HotPotatoe.Player.prototype.create = function() {
 
         this.halo = this.phaser.add.graphics(x, y);
         this.halo.lineStyle(1, 0xffffff);
-        this.halo.drawCircle(0, 0, 20);
+        this.halo.drawCircle(0, 0, 14);
         this.halo.visible = false;
         // with phaser 2.2, repeat value = -1 for unlimited repeat
-        this.phaser.add.tween(this.halo.scale).to( { x: 1.5, y: 1.5 }, 600, Phaser.Easing.Linear.None, true, 0, 100, true);
+        this.phaser.add.tween(this.halo.scale).to( { x: 1.7, y: 1.7 }, 600, Phaser.Easing.Linear.None, true, 0, 100, false);
     }
     this.sprite.playerId = this.id;
 
@@ -126,8 +126,8 @@ HotPotatoe.Player.prototype.update = function() {
             this.playerNameText.visible = true;
         }
         this.halo.visible = this.isHotPotatoe && this.sprite.visible;
-        this.halo.x = this.sprite.x;
-        this.halo.y = this.sprite.y;
+        this.halo.x = this.sprite.x - 0.7;
+        this.halo.y = this.sprite.y - 0.4;
     }
 };
 
