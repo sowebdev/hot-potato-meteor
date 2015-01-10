@@ -57,12 +57,12 @@ HotPotatoe.Game = function(game, id) {
 
             if (Meteor.isClient) {
                 if (self.isSpectatorMode) {
-                    self.countdownText = self.phaser.add.text(self.phaser.world.centerX, 10, "Spectator", {
+                    self.spectatorText = self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.height - 15, "Spectator", {
                         font: "16px Arial",
                         fill: "#ffffff",
                         align: "center"
                     });
-                    self.countdownText.anchor.setTo(0.5, 0.5);
+                    self.spectatorText.anchor.setTo(0.5, 0.5);
                 } else {
                     //Handling input sent to server
                     self.cursors = self.phaser.input.keyboard.createCursorKeys();
@@ -80,9 +80,10 @@ HotPotatoe.Game = function(game, id) {
             //Display countdown
             if (Meteor.isClient) {
                 var gameDb = GamesDb.findOne(self.id);
-                self.countdownText = self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.centerY, gameDb.secondsLeft + " seconds left !", {
-                    font: "26px Arial",
-                    fill: "#ff0044",
+                self.countdownText = self.phaser.add.text(self.phaser.world.centerX, 15, GameInstance.formatSecondsForCountdown(gameDb.secondsLeft), {
+                    font: "18px Arial",
+                    fontWeight: "bold",
+                    fill: "#ffffff",
                     align: "center"
                 });
 
@@ -130,7 +131,7 @@ HotPotatoe.Game = function(game, id) {
             //Update countdown
             if (Meteor.isClient) {
                 var gameDb = GamesDb.findOne(self.id);
-                self.countdownText.setText(gameDb.secondsLeft + " seconds left !");
+                self.countdownText.setText(GameInstance.formatSecondsForCountdown(gameDb.secondsLeft));
             }
         }
     };
@@ -145,12 +146,12 @@ HotPotatoe.Game = function(game, id) {
                 text.anchor.set(0.5);
 
                 if (self.isSpectatorMode) {
-                    self.countdownText = self.phaser.add.text(self.phaser.world.centerX, 10, "Spectator", {
+                    self.spectatorText = self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.height - 15, "Spectator", {
                         font: "16px Arial",
                         fill: "#ffffff",
                         align: "center"
                     });
-                    self.countdownText.anchor.setTo(0.5, 0.5);
+                    self.spectatorText.anchor.setTo(0.5, 0.5);
                 }
             }
 
