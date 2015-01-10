@@ -108,6 +108,11 @@ HotPotatoe.Game = function(game, id) {
                     var gameDb = GamesDb.findOne(this.id);
                     if (gameDb.secondsLeft == 0) {
                         if (this.phaser.state.current != 'end') {
+                            for (var i = 0; i < self.players.length; i++) {
+                                if (self.players[i].isHotPotatoe) {
+                                    self.players[i].isLoser = true;
+                                }
+                            }
                             this.phaser.state.start('end');
                         }
                     }
@@ -144,6 +149,20 @@ HotPotatoe.Game = function(game, id) {
                 var style = {font: "65px Arial", fill: "#ff0044", align: "center"};
                 var text = game.add.text(game.world.centerX, game.world.centerY, "Game Over", style);
                 text.anchor.set(0.5);
+
+                var loser = null;
+                var currentRoom =  GameRooms.currentRoom();
+                for (var i = 0; i < self.players.length; i++) {
+                    if (self.players[i].isLoser) {
+                        loser =_.findWhere(currentRoom.players, {id: self.players[i].id});
+                    }
+                }
+                var loserText = game.add.text(game.world.centerX, game.world.centerY + 40, loser.name + " lost the game !", {
+                    font: "16px Arial",
+                    fill: "#ffffff",
+                    align: "center"
+                });
+                loserText.anchor.set(0.5);
 
                 if (self.isSpectatorMode) {
                     self.spectatorText = self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.height - 15, "Spectator", {
