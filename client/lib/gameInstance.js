@@ -34,14 +34,17 @@ GameInstance.observeGameStatus = function () {
     gamesDb.observe({
         added: function(doc){
             if (doc.status == 'running') {
+                document.getElementById('logo').style.width = '70px';
                 GameInstance.createGame(doc._id);
             }
         },
         changed: function(newDoc, oldDoc){
             if (newDoc.status == 'running' && oldDoc.status != 'running') {
+                document.getElementById('logo').style.width = '70px';
                 GameInstance.createGame(newDoc._id);
             }
             if (newDoc.status == 'end' && oldDoc.status != 'end') {
+                document.getElementById('logo').style.width = '400px';
                 GameInstance.destroyGame();
             }
         }
