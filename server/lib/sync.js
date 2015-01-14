@@ -3,6 +3,7 @@ SyncPlayer = {
         player.syncId = Players.insert({
             gameId: gameId,
             isHotPotatoe: player.isHotPotatoe,
+            canMove: player.canMove,
             id: player.id,
             sprite: {
                 x: player.sprite.x,
@@ -17,6 +18,7 @@ SyncPlayer = {
         Players.update(player.syncId, {
             $set: {
                 isHotPotatoe: player.isHotPotatoe,
+                canMove: player.canMove,
                 sprite: {
                     x: player.sprite.x,
                     y: player.sprite.y,

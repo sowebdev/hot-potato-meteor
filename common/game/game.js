@@ -28,11 +28,15 @@ HotPotatoe.Game = function(game, id) {
         players: 'blue'
     };
 
+    //TODO remove this hacky fix which tries to avoid running code defined in a looped event multiples times
+    this.passedPrepareEnd = false;
+
     var mainState = {
         preload: function() {
             self.phaser.load.image(self.assetIds.hotpotatoe, 'assets/circle-red.png', false, 30, 30);
             self.phaser.load.image(self.assetIds.players, 'assets/circle-blue.png', false, 30, 30);
             self.phaser.load.image(self.assetIds.currentPlayer, 'assets/circle-green.png', false, 30, 30);
+            self.phaser.load.image('pixel', 'assets/pixel.png', false, 5, 5);
 
             for (var i = 0; i < self.players.length; i++) {
                 self.players[i].preload();
@@ -51,6 +55,18 @@ HotPotatoe.Game = function(game, id) {
                 }
             }
             if (Meteor.isClient) {
+
+                //Prepare particle emitter for final explosion
+                self.finalExplosionEmitter = self.phaser.add.emitter(0, 0, 100);
+                self.finalExplosionEmitter.makeParticles('pixel');
+                self.finalExplosionEmitter.setYSpeed(-150, 150);
+                self.finalExplosionEmitter.setXSpeed(-150, 150);
+                self.finalExplosionEmitter.minParticleScale = 0.1;
+                self.finalExplosionEmitter.maxParticleScale = 0.5;
+                self.finalExplosionEmitter.minRotation = 0;
+                self.finalExplosionEmitter.maxRotation = 90;
+                self.finalExplosionEmitter.gravity = 0;
+
                 //Sync players changes
                 Tracker.autorun(GameInstance.updateSyncData);
             }
@@ -98,8 +114,21 @@ HotPotatoe.Game = function(game, id) {
                             $inc: {secondsLeft: -1}
                         });
                     } else {
-                        if (this.phaser.state.current != 'end') {
-                            this.phaser.state.start('end');
+                        if (!this.passedPrepareEnd) {
+                            //Stop every player and mark loser
+                            for (var i = 0; i < self.players.length; i++) {
+                                self.players[i].canMove = false;
+                                if (self.players[i].isHotPotatoe) {
+                                    self.players[i].isLoser = true;
+                                }
+                            }
+                            //And wait a few seconds before switching to end state
+                            self.phaser.time.events.add(Phaser.Timer.SECOND * 3, function() {
+                                if (this.phaser.state.current != 'end') {
+                                    this.phaser.state.start('end');
+                                }
+                            }, self);
+                            this.passedPrepareEnd = true;
                         }
                     }
                 }, self);
@@ -108,12 +137,25 @@ HotPotatoe.Game = function(game, id) {
                     var gameDb = GamesDb.findOne(this.id);
                     if (gameDb.secondsLeft == 0) {
                         if (this.phaser.state.current != 'end') {
-                            for (var i = 0; i < self.players.length; i++) {
-                                if (self.players[i].isHotPotatoe) {
-                                    self.players[i].isLoser = true;
+                            if (!this.passedPrepareEnd) {
+
+                                for (var i = 0; i < self.players.length; i++) {
+                                    if (self.players[i].isHotPotatoe) {
+                                        self.players[i].isLoser = true;
+                                        this.finalExplosionEmitter.x = self.players[i].sprite.x;
+                                        this.finalExplosionEmitter.y = self.players[i].sprite.y;
+                                    }
                                 }
+
+                                this.finalExplosionEmitter.start(true, 1000, null, 100);
+
+                                //After a few seconds we switch to end state
+                                self.phaser.time.events.add(Phaser.Timer.SECOND * 3, function() {
+                                    this.phaser.state.start('end');
+                                }, self);
+
+                                this.passedPrepareEnd = true;
                             }
-                            this.phaser.state.start('end');
                         }
                     }
                 }, self);

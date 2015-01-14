@@ -18,6 +18,7 @@ HotPotatoe.Player = function (game, id, isCurrentPlayer) {
     this.force = 15;
     this.maxVelocity = 200;
     this.isHotPotatoe = false;
+    this.canMove = true;
 
     if (typeof isCurrentPlayer !== 'undefined') {
         this.isCurrentPlayer = isCurrentPlayer;
@@ -93,7 +94,7 @@ HotPotatoe.Player.prototype.create = function() {
  */
 HotPotatoe.Player.prototype.update = function() {
     //Handle player input and update sprite sync
-    if (Meteor.isServer) {
+    if (Meteor.isServer && this.canMove) {
         if (UserActions[this.id].cursors.left.isDown) {
             this.sprite.body.data.force[0] += this.force;
         } else if (UserActions[this.id].cursors.right.isDown) {

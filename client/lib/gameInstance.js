@@ -62,6 +62,7 @@ GameInstance.updateSyncData = function () {
                     _player.sprite.angle = playerDb.sprite.angle;
                     _player.sprite.visible = true;
                 }
+                _player.canMove = playerDb.canMove;
             }
         });
     }
