@@ -10,7 +10,8 @@ SyncPlayer = {
                 y: player.sprite.y,
                 width: player.sprite.width,
                 height: player.sprite.height,
-                angle: player.sprite.angle
+                angle: player.sprite.angle,
+                visible: player.sprite.visible
             }
         });
     },
@@ -24,7 +25,8 @@ SyncPlayer = {
                     y: player.sprite.y,
                     width: player.sprite.width,
                     height: player.sprite.height,
-                    angle: player.sprite.angle
+                    angle: player.sprite.angle,
+                    visible: player.sprite.visible
                 }
             }
         });

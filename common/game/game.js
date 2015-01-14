@@ -120,6 +120,7 @@ HotPotatoe.Game = function(game, id) {
                                 self.players[i].canMove = false;
                                 if (self.players[i].isHotPotatoe) {
                                     self.players[i].isLoser = true;
+                                    self.players[i].sprite.kill();
                                 }
                             }
                             //And wait a few seconds before switching to end state

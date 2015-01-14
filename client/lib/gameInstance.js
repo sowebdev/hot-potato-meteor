@@ -60,7 +60,7 @@ GameInstance.updateSyncData = function () {
                     _player.sprite.width = playerDb.sprite.width;
                     _player.sprite.height = playerDb.sprite.height;
                     _player.sprite.angle = playerDb.sprite.angle;
-                    _player.sprite.visible = true;
+                    _player.sprite.visible = playerDb.sprite.visible;
                 }
                 _player.canMove = playerDb.canMove;
             }
