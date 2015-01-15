@@ -21,12 +21,14 @@ GameInstance.createGame = function (id) {
         GameInstance.game = new HotPotatoe.Game(new Phaser.Game(GameInstance.phaserConfig), id);
         GameInstance.game.setUp(gameDb.players);
         GameInstance.game.start();
+        document.getElementById('logo').style.display = "none";
     }
 };
 GameInstance.destroyGame = function () {
     if (GameInstance.game) {
         GameInstance.game.phaser.destroy();
         GameInstance.game = null;
+        document.getElementById('logo').style.display = "block";
     }
 };
 GameInstance.observeGameStatus = function () {
@@ -34,17 +36,14 @@ GameInstance.observeGameStatus = function () {
     gamesDb.observe({
         added: function(doc){
             if (doc.status == 'running') {
-                document.getElementById('logo').style.width = '70px';
                 GameInstance.createGame(doc._id);
             }
         },
         changed: function(newDoc, oldDoc){
             if (newDoc.status == 'running' && oldDoc.status != 'running') {
-                document.getElementById('logo').style.width = '70px';
                 GameInstance.createGame(newDoc._id);
             }
             if (newDoc.status == 'end' && oldDoc.status != 'end') {
-                document.getElementById('logo').style.width = '400px';
                 GameInstance.destroyGame();
             }
         }
