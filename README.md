@@ -1,4 +1,4 @@
-# Hot Potato game
+# Hot Potato game (version 0.1 stable)
 
 Hot Potato is an experimental multiplayer game written with Phaser and Meteor.
 It is experimental in that it uses server-side Phaser instances (Phaser is built to run in a browser) which synchronize with client instances.
