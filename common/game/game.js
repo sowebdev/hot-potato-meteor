@@ -62,7 +62,7 @@ HotPotatoe.Game = function(game, id) {
                 self.finalExplosionEmitter.setYSpeed(-150, 150);
                 self.finalExplosionEmitter.setXSpeed(-150, 150);
                 self.finalExplosionEmitter.minParticleScale = 0.1;
-                self.finalExplosionEmitter.maxParticleScale = 0.5;
+                self.finalExplosionEmitter.maxParticleScale = 1;
                 self.finalExplosionEmitter.minRotation = 0;
                 self.finalExplosionEmitter.maxRotation = 90;
                 self.finalExplosionEmitter.gravity = 0;
@@ -148,7 +148,7 @@ HotPotatoe.Game = function(game, id) {
                                     }
                                 }
 
-                                this.finalExplosionEmitter.start(true, 1000, null, 100);
+                                this.finalExplosionEmitter.start(true, 2500, null, 100);
 
                                 //After a few seconds we switch to end state
                                 self.phaser.time.events.add(Phaser.Timer.SECOND * 3, function() {
