@@ -181,6 +181,10 @@ HotPotatoe.Game = function(game, id) {
                 var gameDb = GamesDb.findOne(self.id);
                 self.countdownText.setText(GameInstance.formatSecondsForCountdown(gameDb.secondsLeft));
             }
+
+            //Performance monitoring
+            self.phaser.time.advancedTiming = true;//Enable FPS monitoring
+            console.log(self.phaser.time.fps);
         }
     };
 
