@@ -19,6 +19,8 @@ Meteor.publish('players', function (game) {
 });
 
 Meteor.startup(function(){
+    Kadira.connect('jqJJjTLs66EKR7gLf', '78a72023-2e43-4bda-a158-2cb889645d01');
+
     GameRooms.startGameCallback = function(roomId){
         //Create game document in DB
         var room = GameRooms.rooms.findOne(roomId);
