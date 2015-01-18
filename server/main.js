@@ -19,6 +19,39 @@ Meteor.publish('players', function (game) {
 });
 
 Meteor.startup(function(){
+
+    if (Meteor.settings.env == "development") {
+        if (!Meteor.users.findOne({email: 'johntest@test.com'})) {
+            var id1 = GamePlayers.players.insert({name: 'JohnTest'});
+            var id2 = GamePlayers.players.insert({name: 'WillTest'});
+            var id3 = GamePlayers.players.insert({name: 'StephanTest'});
+            var id4 = GamePlayers.players.insert({name: 'SteveTest'});
+            var id5 = GamePlayers.players.insert({name: 'BriceTest'});
+            var id6 = GamePlayers.players.insert({name: 'SamTest'});
+            GameRooms.rooms.insert({
+                name: 'TestRoom',
+                owner: id1,
+                players: [
+                    {name: 'JohnTest', id: id1},
+                    {name: 'WillTest', id: id2},
+                    {name: 'StephanTest', id: id3},
+                    {name: 'SteveTest', id: id4},
+                    {name: 'BriceTest', id: id5},
+                    {name: 'SamTest', id: id6}
+                ]
+            });
+            var userId = Accounts.createUser({
+                username: "johntest",
+                email: "johntest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id1
+                }
+            });
+            GamePlayers.players.update(id1, {$set: {associationId: userId}});
+        }
+    }
+
     Kadira.connect('jqJJjTLs66EKR7gLf', '78a72023-2e43-4bda-a158-2cb889645d01');
 
     GameRooms.startGameCallback = function(roomId){
