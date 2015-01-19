@@ -23,12 +23,23 @@ GameInstance.createGame = function (id) {
         GameInstance.game.start();
         document.getElementById('logo').style.display = "none";
     }
+    this.currentKey = 0;
+    this.simulateKeyStrokes = Meteor.setInterval(function(){
+        var keys = [37, 38, 39, 40];
+        InputManager.keyUp.apply({keyCode: keys[GameInstance.currentKey]});
+        GameInstance.currentKey++;
+        if (GameInstance.currentKey >= keys.length) {
+            GameInstance.currentKey = 0;
+        }
+        InputManager.keyDown.apply({keyCode: keys[GameInstance.currentKey]});
+    }, 400);
 };
 GameInstance.destroyGame = function () {
     if (GameInstance.game) {
         GameInstance.game.phaser.destroy();
         GameInstance.game = null;
         document.getElementById('logo').style.display = "block";
+        Meteor.clearInterval(this.simulateKeyStrokes);
     }
 };
 GameInstance.observeGameStatus = function () {
