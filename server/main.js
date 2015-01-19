@@ -21,13 +21,14 @@ Meteor.publish('players', function (game) {
 Meteor.startup(function(){
 
     if (Meteor.settings.env == "development") {
-        if (!Meteor.users.findOne({email: 'johntest@test.com'})) {
+        if (!Meteor.users.findOne({username: 'johntest'})) {
             var id1 = GamePlayers.players.insert({name: 'JohnTest'});
             var id2 = GamePlayers.players.insert({name: 'WillTest'});
             var id3 = GamePlayers.players.insert({name: 'StephanTest'});
             var id4 = GamePlayers.players.insert({name: 'SteveTest'});
             var id5 = GamePlayers.players.insert({name: 'BriceTest'});
             var id6 = GamePlayers.players.insert({name: 'SamTest'});
+            var id7 = GamePlayers.players.insert({name: 'DeanTest'});
             GameRooms.rooms.insert({
                 name: 'TestRoom',
                 owner: id1,
@@ -37,7 +38,8 @@ Meteor.startup(function(){
                     {name: 'StephanTest', id: id3},
                     {name: 'SteveTest', id: id4},
                     {name: 'BriceTest', id: id5},
-                    {name: 'SamTest', id: id6}
+                    {name: 'SamTest', id: id6},
+                    {name: 'DeanTest', id: id7}
                 ]
             });
             var userId1 = Accounts.createUser({
@@ -94,6 +96,15 @@ Meteor.startup(function(){
                 }
             });
             GamePlayers.players.update(id6, {$set: {associationId: userId6}});
+            var userId7 = Accounts.createUser({
+                username: "deantest",
+                email: "deantest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id7
+                }
+            });
+            GamePlayers.players.update(id7, {$set: {associationId: userId7}});
         }
     }
 
