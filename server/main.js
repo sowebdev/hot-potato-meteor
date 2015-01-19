@@ -40,7 +40,7 @@ Meteor.startup(function(){
                     {name: 'SamTest', id: id6}
                 ]
             });
-            var userId = Accounts.createUser({
+            var userId1 = Accounts.createUser({
                 username: "johntest",
                 email: "johntest@test.com",
                 password: "password",
@@ -48,7 +48,52 @@ Meteor.startup(function(){
                     playerId: id1
                 }
             });
-            GamePlayers.players.update(id1, {$set: {associationId: userId}});
+            GamePlayers.players.update(id1, {$set: {associationId: userId1}});
+            var userId2 = Accounts.createUser({
+                username: "willtest",
+                email: "willtest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id2
+                }
+            });
+            GamePlayers.players.update(id2, {$set: {associationId: userId2}});
+            var userId3 = Accounts.createUser({
+                username: "stephantest",
+                email: "stephantest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id3
+                }
+            });
+            GamePlayers.players.update(id3, {$set: {associationId: userId3}});
+            var userId4 = Accounts.createUser({
+                username: "stevetest",
+                email: "stevetest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id4
+                }
+            });
+            GamePlayers.players.update(id4, {$set: {associationId: userId4}});
+            var userId5 = Accounts.createUser({
+                username: "bricetest",
+                email: "bricetest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id5
+                }
+            });
+            GamePlayers.players.update(id5, {$set: {associationId: userId5}});
+            var userId6 = Accounts.createUser({
+                username: "samtest",
+                email: "samtest@test.com",
+                password: "password",
+                profile: {
+                    playerId: id6
+                }
+            });
+            GamePlayers.players.update(id6, {$set: {associationId: userId6}});
         }
     }
 
