@@ -43,6 +43,7 @@ HotPotatoe.Game = function(game, id) {
             }
         },
         create: function() {
+            self.phaser.time.desiredFps = 5;
             if (Meteor.isServer) {
                 self.phaser.physics.startSystem(Phaser.Physics.P2JS);
             }
@@ -184,7 +185,15 @@ HotPotatoe.Game = function(game, id) {
 
             //Performance monitoring
             self.phaser.time.advancedTiming = true;//Enable FPS monitoring
+            console.log('actual');
             console.log(self.phaser.time.fps);
+            console.log('desired');
+            console.log(self.phaser.time.desiredFps);
+            console.log('calculation');
+            var time = Date.now();
+            console.log('Params', time, self.phaser.time.timeCallExpected, (self.phaser.time.timeCallExpected - time), (1000.0 / self.phaser.time.desiredFps), (1000.0 / self.phaser.time.desiredFps) - (self.phaser.time.timeCallExpected - time));
+            console.log('Result');
+            console.log(Math.floor(Math.max(0, (1000.0 / self.phaser.time.desiredFps) - (self.phaser.time.timeCallExpected - time))));
         }
     };
 

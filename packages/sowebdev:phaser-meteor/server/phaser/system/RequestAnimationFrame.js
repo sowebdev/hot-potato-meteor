@@ -45,6 +45,8 @@ Phaser.RequestAnimationFrame.prototype.updateSetTimeout = function () {
 
     if (this.isRunning) {
         //small hack on meteor server to prevent running code after phaser instance was destroyed
+        console.log('timeTocall');
+        console.log(this.game.time.timeToCall);
         this._timeOutID = Meteor.setTimeout(this._onLoop, this.game.time.timeToCall);
     }
 
