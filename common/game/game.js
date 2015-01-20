@@ -258,7 +258,7 @@ HotPotatoe.Game.prototype.setUp = function(players) {
     }
 
     if (Meteor.isServer) {
-        this.players[new Phaser.RandomDataGenerator().between(0, this.players.length - 1)].setHotPotatoe(true);
+        this.players[Math.floor(Math.random() * this.players.length)].setHotPotatoe(true);
     }
 
     if (Meteor.isClient && !this.isSpectatorMode) {
