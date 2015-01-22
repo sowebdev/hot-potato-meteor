@@ -55,21 +55,15 @@ HotPotatoe.Player.prototype.create = function() {
     }
     this.sprite.playerId = this.id;
 
-    if (Meteor.isServer) {
-        // We need to enable physics on the player
-        this.phaser.physics.p2.enable(this.sprite);
-        this.sprite.body.setCircle(15);
+    this.phaser.physics.p2.enable(this.sprite);
+    this.sprite.body.setCircle(15);
 
+    if (Meteor.isServer) {
         // Adding a collision event for player that is hot potato
         if(this.isHotPotatoe) {
             this.jumpingHotPotatoSignalBinding = this.sprite.body.onBeginContact.add(this.jumpingHotPotatoCallback, this);
         }
     } else {
-        //We need to center anchor on client because
-        //when we set a p2 physics body on this sprite on server
-        //the anchor is centered implicitly
-        this.sprite.anchor.setTo(0.5, 0.5);
-
         // Display player name
         var currentRoom =  GameRooms.currentRoom();
         var _player =_.findWhere(currentRoom.players, {id: this.id});
@@ -94,7 +88,7 @@ HotPotatoe.Player.prototype.create = function() {
  */
 HotPotatoe.Player.prototype.update = function() {
     //Handle player input and update sprite sync
-    if (Meteor.isServer && this.canMove) {
+    if (this.canMove && UserActions[this.id]) {
         if (UserActions[this.id].cursors.left.isDown) {
             this.sprite.body.data.force[0] += this.force;
         } else if (UserActions[this.id].cursors.right.isDown) {

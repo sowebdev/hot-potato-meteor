@@ -44,9 +44,10 @@ HotPotatoe.Game = function(game, id) {
         },
         create: function() {
             self.phaser.time.desiredFps = 5;
-            if (Meteor.isServer) {
-                self.phaser.physics.startSystem(Phaser.Physics.P2JS);
-            }
+
+            // We activate physics on client and server
+            self.phaser.physics.startSystem(Phaser.Physics.P2JS);
+
             self.phaser.stage.backgroundColor = '#2d2d2d';
 
             for (var i = 0; i < self.players.length; i++) {
@@ -108,6 +109,14 @@ HotPotatoe.Game = function(game, id) {
             }
 
             if (Meteor.isServer) {
+
+                // Active sync sprite data every 50 ms
+                self.phaser.time.events.loop(Phaser.Timer.SECOND / 20, function() {
+                    for (var playerIndex = 0; playerIndex < self.players.length; playerIndex++) {
+                        SyncPlayer.update(self.players[playerIndex]);
+                    }
+                });
+
                 self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
                     var gameDb = GamesDb.findOne(this.id);
                     if (gameDb.secondsLeft > 0) {
@@ -172,9 +181,6 @@ HotPotatoe.Game = function(game, id) {
 
             for (var i = 0; i < self.players.length; i++) {
                 self.players[i].update();
-                if (Meteor.isServer) {
-                    SyncPlayer.update(self.players[i]);
-                }
             }
 
             //Update countdown

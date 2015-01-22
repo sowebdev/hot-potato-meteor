@@ -16,6 +16,15 @@ GameInstance.createGame = function (id) {
     //Subscribe to players sync for current game
     Meteor.subscribe('players', id);
     if (!GameInstance.game) {
+        UserActions[GamePlayers.playerId()] = {
+            cursors: {
+                left: {isDown: false},
+                right: {isDown: false},
+                up: {isDown: false},
+                down: {isDown: false}
+            }
+        };
+
         //Run the game
         var gameDb = GamesDb.findOne(id);
         GameInstance.game = new HotPotatoe.Game(new Phaser.Game(GameInstance.phaserConfig), id);
@@ -24,15 +33,15 @@ GameInstance.createGame = function (id) {
         document.getElementById('logo').style.display = "none";
     }
     this.currentKey = 0;
-    this.simulateKeyStrokes = Meteor.setInterval(function(){
-        var keys = [37, 38, 39, 40];
-        InputManager.keyUp.apply({keyCode: keys[GameInstance.currentKey]});
-        GameInstance.currentKey++;
-        if (GameInstance.currentKey >= keys.length) {
-            GameInstance.currentKey = 0;
-        }
-        InputManager.keyDown.apply({keyCode: keys[GameInstance.currentKey]});
-    }, 400);
+    //this.simulateKeyStrokes = Meteor.setInterval(function(){
+    //    var keys = [37, 38, 39, 40];
+    //    InputManager.keyUp.apply({keyCode: keys[GameInstance.currentKey]});
+    //    GameInstance.currentKey++;
+    //    if (GameInstance.currentKey >= keys.length) {
+    //        GameInstance.currentKey = 0;
+    //    }
+    //    InputManager.keyDown.apply({keyCode: keys[GameInstance.currentKey]});
+    //}, 400);
 };
 GameInstance.destroyGame = function () {
     if (GameInstance.game) {
@@ -68,8 +77,8 @@ GameInstance.updateSyncData = function () {
             if (_player) {
                 _player.setHotPotatoe(playerDb.isHotPotatoe);
                 if (_player.sprite) {
-                    _player.sprite.x = playerDb.sprite.x;
-                    _player.sprite.y = playerDb.sprite.y;
+                    _player.sprite.body.x = playerDb.sprite.x;
+                    _player.sprite.body.y = playerDb.sprite.y;
                     _player.sprite.width = playerDb.sprite.width;
                     _player.sprite.height = playerDb.sprite.height;
                     _player.sprite.angle = playerDb.sprite.angle;
