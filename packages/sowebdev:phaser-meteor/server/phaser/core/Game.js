@@ -1,34 +1,37 @@
 /**
  * Replaced every call to setTimeout with the meteor equivalent : Meteor.setTimeout
- * Update function calls render functions even if in HEADLESS mode (this is needed for physics to work correctly)
+ * Phaser.HEADLESS is default render type
+ * enableDebug is set to false
+ * forceSetTimeOut is set to true
+ * test for raf.isRunning in update() to prevent one last iteration after phaser instance is destroyed
  */
 
 //Store prototype to restore it after constructor override
 var prototype = Phaser.Game.prototype;
 
 /**
- * Game constructor
- *
- * Instantiate a new <code>Phaser.Game</code> object.
- * @class Phaser.Game
- * @classdesc This is where the magic happens. The Game object is the heart of your game,
+ * This is where the magic happens. The Game object is the heart of your game,
  * providing quick access to common functions and handling the boot process.
+ *
  * "Hell, there are no rules here - we're trying to accomplish something."
  *                                                       Thomas A. Edison
+ *
+ * @class Phaser.Game
  * @constructor
- * @param {number} [width=800] - The width of your game in game pixels.
- * @param {number} [height=600] - The height of your game in game pixels.
+ * @param {number|string} [width=800] - The width of your game in game pixels. If given as a string the value must be between 0 and 100 and will be used as the percentage width of the parent container, or the browser window if no parent is given.
+ * @param {number|string} [height=600] - The height of your game in game pixels. If given as a string the value must be between 0 and 100 and will be used as the percentage height of the parent container, or the browser window if no parent is given.
  * @param {number} [renderer=Phaser.AUTO] - Which renderer to use: Phaser.AUTO will auto-detect, Phaser.WEBGL, Phaser.CANVAS or Phaser.HEADLESS (no rendering at all).
  * @param {string|HTMLElement} [parent=''] - The DOM element into which this games canvas will be injected. Either a DOM ID (string) or the element itself.
  * @param {object} [state=null] - The default state object. A object consisting of Phaser.State functions (preload, create, update, render) or null.
  * @param {boolean} [transparent=false] - Use a transparent canvas background or not.
- * @param  {boolean} [antialias=true] - Draw all image textures anti-aliased or not. The default is for smooth textures, but disable if your game features pixel art.
+ * @param {boolean} [antialias=true] - Draw all image textures anti-aliased or not. The default is for smooth textures, but disable if your game features pixel art.
  * @param {object} [physicsConfig=null] - A physics configuration object to pass to the Physics world on creation.
  */
 Phaser.Game = function (width, height, renderer, parent, state, transparent, antialias, physicsConfig) {
 
     /**
      * @property {number} id - Phaser Game ID (for when Pixi supports multiple instances).
+     * @readonly
      */
     this.id = Phaser.GAMES.push(this) - 1;
 
@@ -49,16 +52,38 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
     this.parent = '';
 
     /**
-     * @property {number} width - The calculated game width in pixels.
+     * The current Game Width in pixels.
+     *
+     * _Do not modify this property directly:_ use {@link Phaser.ScaleManager#setGameSize} - eg. `game.scale.setGameSize(width, height)` - instead.
+     *
+     * @property {integer} width
+     * @readonly
      * @default
      */
     this.width = 800;
 
     /**
-     * @property {number} height - The calculated game height in pixels.
+     * The current Game Height in pixels.
+     *
+     * _Do not modify this property directly:_ use {@link Phaser.ScaleManager#setGameSize} - eg. `game.scale.setGameSize(width, height)` - instead.
+     *
+     * @property {integer} height
+     * @readonly
      * @default
      */
     this.height = 600;
+
+    /**
+     * @property {integer} _width - Private internal var.
+     * @private
+     */
+    this._width = 800;
+
+    /**
+     * @property {integer} _height - Private internal var.
+     * @private
+     */
+    this._height = 600;
 
     /**
      * @property {boolean} transparent - Use a transparent canvas background or not.
@@ -80,11 +105,13 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
 
     /**
      * @property {PIXI.CanvasRenderer|PIXI.WebGLRenderer} renderer - The Pixi Renderer.
+     * @protected
      */
     this.renderer = null;
 
     /**
      * @property {number} renderType - The Renderer this game will use. Either Phaser.AUTO, Phaser.CANVAS or Phaser.WEBGL.
+     * @readonly
      */
     this.renderType = Phaser.HEADLESS;//On server we use HEADLESS
 
@@ -95,18 +122,19 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
 
     /**
      * @property {boolean} isBooted - Whether the game engine is booted, aka available.
-     * @default
+     * @readonly
      */
     this.isBooted = false;
 
     /**
-     * @property {boolean} id -Is game running or paused?
-     * @default
+     * @property {boolean} isRunning - Is game running or paused?
+     * @readonly
      */
     this.isRunning = false;
 
     /**
      * @property {Phaser.RequestAnimationFrame} raf - Automatically handles the core game loop via requestAnimationFrame or setTimeout
+     * @protected
      */
     this.raf = null;
 
@@ -188,7 +216,7 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
     /**
      * @property {Phaser.Device} device - Contains device information and capabilities.
      */
-    this.device = null;
+    this.device = Phaser.Device;
 
     /**
      * @property {Phaser.Camera} camera - A handy reference to world.camera.
@@ -214,6 +242,15 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
      * @property {Phaser.Particles} particles - The Particle Manager.
      */
     this.particles = null;
+
+    /**
+     * If `false` Phaser will automatically render the display list every update. If `true` the render loop will be skipped.
+     * You can toggle this value at run-time to gain exact control over when Phaser renders. This can be useful in certain types of game or application.
+     * Please note that if you don't render the display list then none of the game object transforms will be updated, so use this value carefully.
+     * @property {boolean} lockRender
+     * @default
+     */
+    this.lockRender = false;
 
     /**
      * @property {boolean} stepping - Enable core loop stepping with Game.enableStep().
@@ -268,8 +305,59 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
      */
     this._codePaused = false;
 
-    this._width = 800;
-    this._height = 600;
+    /**
+     * The ID of the current/last logic update applied this render frame, starting from 0.
+     *
+     * The first update is `currentUpdateID === 0` and the last update is `currentUpdateID === updatesThisFrame.`
+     * @property {integer} currentUpdateID
+     * @protected
+     */
+    this.currentUpdateID = 0;
+
+    /**
+     * Number of logic updates expected to occur this render frame;
+     * will be 1 unless there are catch-ups required (and allowed).
+     * @property {integer} updatesThisFrame
+     * @protected
+     */
+    this.updatesThisFrame = 1;
+
+    /**
+     * @property {number} _deltaTime - accumulate elapsed time until a logic update is due
+     * @private
+     */
+    this._deltaTime = 0;
+
+    /**
+     * @property {number} _lastCount - remember how many 'catch-up' iterations were used on the logicUpdate last frame
+     * @private
+     */
+    this._lastCount = 0;
+
+    /**
+     * @property {number} _spiralling - if the 'catch-up' iterations are spiralling out of control, this counter is incremented
+     * @private
+     */
+    this._spiralling = 0;
+
+    /**
+     * If the game is struggling to maintain the desired FPS, this signal will be dispatched.
+     * The desired/chosen FPS should probably be closer to the {@link Phaser.Time#suggestedFps} value.
+     * @property {Phaser.Signal} fpsProblemNotifier
+     * @public
+     */
+    this.fpsProblemNotifier = new Phaser.Signal();
+
+    /**
+     * @property {boolean} forceSingleUpdate - Should the game loop force a logic update, regardless of the delta timer? Set to true if you know you need this. You can toggle it on the fly.
+     */
+    this.forceSingleUpdate = false;
+
+    /**
+     * @property {number} _nextNotification - the soonest game.time.time value that the next fpsProblemNotifier can be dispatched
+     * @private
+     */
+    this._nextFpsNotification = 0;
 
     //  Parse the configuration object (if any)
     if (arguments.length === 1 && typeof arguments[0] === 'object')
@@ -278,7 +366,7 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
     }
     else
     {
-        this.config = { enableDebug: false };//on server we should not enable debug
+        this.config = { enableDebug: true };
 
         if (typeof width !== 'undefined')
         {
@@ -315,14 +403,7 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
         this.state = new Phaser.StateManager(this, state);
     }
 
-    var _this = this;
-
-    this._onBoot = function () {
-        return _this.boot();
-    };
-
-    //Boot immediately on meteor server
-    this._onBoot();
+    this.device.whenReady(this.boot, this);
 
     return this;
 
@@ -331,6 +412,7 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
 //Restore prototype
 Phaser.Game.prototype = prototype;
 
+
 /**
  * Parses a Game configuration object.
  *
@@ -338,12 +420,11 @@ Phaser.Game.prototype = prototype;
  * @protected
  */
 Phaser.Game.prototype.parseConfig = function (config) {
+
     this.config = config;
 
-    if (typeof config['enableDebug'] === 'undefined')
-    {
-        this.config.enableDebug = false;//On server we should not enable this
-    }
+    this.config.enableDebug = false;//On server we should not enable this
+    this.config.forceSetTimeOut = true;//Use Meteor.setTimeout instead of RequestAnimationFrame
 
     if (config['width'])
     {
@@ -402,84 +483,6 @@ Phaser.Game.prototype.parseConfig = function (config) {
     }
 
     this.state = new Phaser.StateManager(this, state);
-};
-
-/**
- * Initialize engine sub modules and start the game.
- *
- * @method Phaser.Game#boot
- * @protected
- */
-Phaser.Game.prototype.boot = function () {
-
-    if (this.isBooted)
-    {
-        return;
-    }
-
-    if (!document.body)
-    {
-        Meteor.setTimeout(this._onBoot, 20);
-    }
-    else
-    {
-        document.removeEventListener('DOMContentLoaded', this._onBoot);
-        window.removeEventListener('load', this._onBoot);
-
-        this.onPause = new Phaser.Signal();
-        this.onResume = new Phaser.Signal();
-        this.onBlur = new Phaser.Signal();
-        this.onFocus = new Phaser.Signal();
-
-        this.isBooted = true;
-
-        this.device = new Phaser.Device(this);
-        this.math = Phaser.Math;
-
-            this.scale = new Phaser.ScaleManager(this, this._width, this._height);
-            this.stage = new Phaser.Stage(this);
-
-        this.setUpRenderer();
-
-        this.device.checkFullScreenSupport();
-
-        this.world = new Phaser.World(this);
-        this.add = new Phaser.GameObjectFactory(this);
-        this.make = new Phaser.GameObjectCreator(this);
-        this.cache = new Phaser.Cache(this);
-        this.load = new Phaser.Loader(this);
-        this.time = new Phaser.Time(this);
-        this.tweens = new Phaser.TweenManager(this);
-        this.input = new Phaser.Input(this);
-        this.sound = new Phaser.SoundManager(this);
-        this.physics = new Phaser.Physics(this, this.physicsConfig);
-        this.particles = new Phaser.Particles(this);
-        this.plugins = new Phaser.PluginManager(this);
-        this.net = new Phaser.Net(this);
-
-        this.time.boot();
-        this.stage.boot();
-        this.world.boot();
-        this.scale.boot();
-        this.input.boot();
-        this.sound.boot();
-        this.state.boot();
-
-        if (this.config['enableDebug'])
-        {
-            this.debug = new Phaser.Utils.Debug(this);
-            this.debug.boot();
-        }
-
-        this.showDebugHeader();
-
-        this.isRunning = true;
-
-        //Disable use of requestAnimationFrame on server, use setTimeout instead
-        this.raf = new Phaser.RequestAnimationFrame(this, true);
-
-        this.raf.start();
-    }
 
 };
 
@@ -492,6 +495,7 @@ Phaser.Game.prototype.boot = function () {
 Phaser.Game.prototype.showDebugHeader = function () {
     console.log('PhaserMeteor | Phaser v' + Phaser.VERSION + ' | Pixi.js ' + PIXI.VERSION);
 };
+
 
 /**
  * The core game loop.
@@ -509,60 +513,77 @@ Phaser.Game.prototype.update = function (time) {
         return;
     }
 
-    if (!this._paused && !this.pendingStep)
+    // if the logic time is spiraling upwards, skip a frame entirely
+    if (this._spiralling > 1 && !this.forceSingleUpdate)
     {
-        if (this.stepping)
+        // cause an event to warn the program that this CPU can't keep up with the current desiredFps rate
+        if (this.time.time > this._nextFpsNotification)
         {
-            this.pendingStep = true;
+            // only permit one fps notification per 10 seconds
+            this._nextFpsNotification = this.time.time + 1000 * 10;
+
+            // dispatch the notification signal
+            this.fpsProblemNotifier.dispatch();
         }
 
-        this.scale.preUpdate();
+        // reset the _deltaTime accumulator which will cause all pending dropped frames to be permanently skipped
+        this._deltaTime = 0;
+        this._spiralling = 0;
 
-        if (this.config['enableDebug'])
-        {
-            this.debug.preUpdate();
-        }
-
-        this.physics.preUpdate();
-        this.state.preUpdate();
-        this.plugins.preUpdate();
-        this.stage.preUpdate();
-
-        this.state.update();
-        this.stage.update();
-        this.tweens.update();
-        this.sound.update();
-        this.input.update();
-        this.physics.update();
-        this.particles.update();
-        this.plugins.update();
-
-        this.stage.postUpdate();
-        this.plugins.postUpdate();
+        // call the game render update exactly once every frame
+        this.updateRender(this.time.slowMotion * this.time.desiredFps);
     }
     else
     {
-        this.state.pauseUpdate();
+        // step size taking into account the slow motion speed
+        var slowStep = this.time.slowMotion * 1000.0 / this.time.desiredFps;
 
-        if (this.config['enableDebug'])
+        // accumulate time until the slowStep threshold is met or exceeded... up to a limit of 3 catch-up frames at slowStep intervals
+        this._deltaTime += Math.max(Math.min(slowStep * 3, this.time.elapsed), 0);
+
+        // call the game update logic multiple times if necessary to "catch up" with dropped frames
+        // unless forceSingleUpdate is true
+        var count = 0;
+
+        this.updatesThisFrame = Math.floor(this._deltaTime / slowStep);
+
+        if (this.forceSingleUpdate)
         {
-            this.debug.preUpdate();
+            this.updatesThisFrame = Math.min(1, this.updatesThisFrame);
         }
-    }
 
-    //Call to render functions even if in HEADLESS mode
+        while (this._deltaTime >= slowStep)
+        {
+            this._deltaTime -= slowStep;
+            this.currentUpdateID = count;
 
-    this.state.preRender();
-    this.renderer.render(this.stage);
+            this.updateLogic(1.0 / this.time.desiredFps);
+            //  Sync the scene graph after _every_ logic update to account for moved game objects
+            this.stage.updateTransform();
 
-    this.plugins.render();
-    this.state.render();
-    this.plugins.postRender();
+            count++;
 
-    if (this.device.cocoonJS && this.renderType === Phaser.CANVAS && this.stage.currentRenderOrderID === 1)
-    {
-        //  Horrible hack! But without it Cocoon fails to render a scene with just a single drawImage call on it.
-        this.context.fillRect(0, 0, 0, 0);
+            if (this.forceSingleUpdate && count === 1)
+            {
+                break;
+            }
+        }
+
+        // detect spiraling (if the catch-up loop isn't fast enough, the number of iterations will increase constantly)
+        if (count > this._lastCount)
+        {
+            this._spiralling++;
+        }
+        else if (count < this._lastCount)
+        {
+            // looks like it caught up successfully, reset the spiral alert counter
+            this._spiralling = 0;
+        }
+
+        this._lastCount = count;
+
+        // call the game render update exactly once every frame unless we're playing catch-up from a spiral condition
+        this.updateRender(this._deltaTime / slowStep);
     }
 
 };
