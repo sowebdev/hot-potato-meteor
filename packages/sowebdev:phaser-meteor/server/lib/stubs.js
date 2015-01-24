@@ -5,7 +5,14 @@
 
 window = {
     addEventListener: function(type,listener,useCapture) {},
-    removeEventListener: function(type,listener,useCapture) {}
+    removeEventListener: function(type,listener,useCapture) {},
+    screen: {
+        orientation: 'landscape-primary'
+    },
+    pageXOffset: 0,
+    pageYOffset: 0,
+    innerWidth: 1360,
+    innerHeight: 600
 };
 
 // When p2 physics library is loaded. It adds itself to the window object
@@ -19,6 +26,10 @@ Object.defineProperty(window, 'p2', {
 document = {
     body: {},
     readyState: 'complete',
+    documentElement: {
+        clientWidth: 1360,
+        clientHeight: 600
+    },
     createElement: function(tagName) {
         var element = null;
         if (tagName === 'canvas') {
@@ -39,7 +50,8 @@ document = {
                         },
                         setTransform: function(m11, m12, m21, m22, dx, dy) {},
                         drawImage: function(img_elem,dx_or_sx,dy_or_sy,dw_or_sw,dh_or_sh,dx,dy,dw,dh) {},
-                        clearRect: function(x, y, width, height){}
+                        clearRect: function(x, y, width, height){},
+                        putImageData: function(image_data,dx,dy,dirtyX,dirtyY,dirtyWidth,dirtyHeight) {}
                     };
                 },
                 getBoundingClientRect: function () {
