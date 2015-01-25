@@ -1,7 +1,10 @@
 <template name="roomView">
     <ul class="list-unstyled">
     {{#each players}}
-        <li><span class="glyphicon glyphicon-user"></span> {{name}}</li>
+        <li>
+            <span class="glyphicon glyphicon-{{#if isOwner .. id}}star{{else}}user{{/if}}"></span>
+            {{name}}
+        </li>
     {{/each}}
     </ul>
     <a href="#" class="btn btn-danger leave">Leave</a>
