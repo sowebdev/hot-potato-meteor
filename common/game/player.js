@@ -48,10 +48,9 @@ HotPotatoe.Player.prototype.create = function() {
 
         this.halo = this.phaser.add.graphics(x, y);
         this.halo.lineStyle(1, 0xffffff);
-        this.halo.drawCircle(0, 0, 14);
+        this.halo.drawCircle(0, 0, this.sprite.width);
         this.halo.visible = false;
-        // with phaser 2.2, repeat value = -1 for unlimited repeat
-        this.phaser.add.tween(this.halo.scale).to( { x: 1.7, y: 1.7 }, 600, Phaser.Easing.Linear.None, true, 0, 100, false);
+        this.phaser.add.tween(this.halo.scale).to({x: 1.7, y: 1.7}, 600, Phaser.Easing.Linear.None, true, 0, -1, false);
     }
     this.sprite.playerId = this.id;
 
@@ -73,7 +72,7 @@ HotPotatoe.Player.prototype.create = function() {
         // Display player name
         var currentRoom =  GameRooms.currentRoom();
         var _player =_.findWhere(currentRoom.players, {id: this.id});
-        this.playerNameText = this.phaser.add.text(x, y + 23 , _player.name.substring(0, 15), {
+        this.playerNameText = this.phaser.add.text(x, y + 25 , _player.name.substring(0, 15), {
             font: "14px Arial",
             fill: "#ffffff",
             align: "center"
@@ -122,7 +121,7 @@ HotPotatoe.Player.prototype.update = function() {
 
     if (Meteor.isClient) {
         this.playerNameText.x = this.sprite.x;
-        this.playerNameText.y = this.sprite.y + 23;
+        this.playerNameText.y = this.sprite.y + 25;
         this.playerNameText.visible = false;
         if (this.sprite.visible) {
             this.playerNameText.visible = true;
