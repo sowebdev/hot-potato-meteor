@@ -10,3 +10,15 @@ A player is chosen at the beginning of the game to hold the hot potato. At the s
 The player who is holding the hot potato must pass it to another player by colliding with him.
 Players can move around the entire game area, trying to avoid collision with the player who holds the hot potato.
 At the end of the countdown, the player with the hot potato loses.
+
+##Installation
+
+First you need to install [Meteor](https://www.meteor.com/) :
+
+    curl https://install.meteor.com/ | sh
+
+Clone the project, go to the project's root directory and type following command :
+
+    meteor
+    
+This launches the application. You should now be able to play at http://localhost/:3000.
