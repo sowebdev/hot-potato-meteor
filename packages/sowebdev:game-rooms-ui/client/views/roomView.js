@@ -8,6 +8,13 @@ Template.roomView.helpers({
         }
         return contextRoom.owner == playerId;
     },
+    playerIsOwner: function () {
+        var currentRoom = GameRooms.currentRoom();
+        if (currentRoom) {
+            return this.id == currentRoom.owner;
+        }
+        return false;
+    },
     gameExists: function() {
         var currentRoom = GameRooms.currentRoom();
         if (currentRoom && currentRoom.game) {
