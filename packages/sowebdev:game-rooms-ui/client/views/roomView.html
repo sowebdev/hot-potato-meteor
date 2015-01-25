@@ -8,10 +8,12 @@
     {{/each}}
     </ul>
     {{#unless gameExists}}
+        {{#unless isOwner}}
     <div class="well well-sm">
         <img src="assets/ajax-loader.gif" alt=""/>
         <span>Waiting for admin to start the game</span>
     </div>
+        {{/unless}}
     {{/unless}}
     <div>
         <a href="#" class="btn btn-danger leave">Leave</a>
