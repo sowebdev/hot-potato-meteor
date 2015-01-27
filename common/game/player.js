@@ -176,5 +176,15 @@ HotPotatoe.Player.prototype.jumpingHotPotatoCallback = function(objectCollided) 
         _playerCollided.setHotPotatoe(true);
         this.setHotPotatoe(false);
         this.jumpingHotPotatoSignalBinding.detach();
+
+        // Reset countdown
+        if (Meteor.isServer) {
+            var gameDb = GamesDb.findOne(this.parent.id);
+            if (gameDb.secondsLeft > 0) {
+                GamesDb.update(this.parent.id, {
+                    $set: {secondsLeft: 10}
+                });
+            }
+        }
     }
 };
