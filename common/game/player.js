@@ -122,10 +122,7 @@ HotPotatoe.Player.prototype.update = function() {
     if (Meteor.isClient) {
         this.playerNameText.x = this.sprite.x;
         this.playerNameText.y = this.sprite.y + 25;
-        this.playerNameText.visible = false;
-        if (this.sprite.visible) {
-            this.playerNameText.visible = true;
-        }
+        this.playerNameText.visible = this.sprite.visible;
         this.halo.visible = this.isHotPotatoe && this.sprite.visible;
         this.halo.x = this.sprite.x - 0.7;
         this.halo.y = this.sprite.y - 0.4;
