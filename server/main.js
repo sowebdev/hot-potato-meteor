@@ -29,7 +29,7 @@ Meteor.startup(function(){
         var gameId = GamesDb.insert({
             status: 'pending',
             players: gamePlayers,
-            secondsLeft: 30,
+            secondsLeft: 10,
             room: roomId
         });
 

@@ -28,9 +28,6 @@ HotPotatoe.Game = function(game, id) {
         players: 'blue'
     };
 
-    //TODO remove this hacky fix which tries to avoid running code defined in a looped event multiples times
-    this.passedPrepareEnd = false;
-
     var mainState = {
         preload: function() {
             self.phaser.load.image(self.assetIds.hotpotatoe, 'assets/circle-red.png', false, 30, 30);
@@ -106,58 +103,23 @@ HotPotatoe.Game = function(game, id) {
                 self.countdownText.anchor.setTo(0.5, 0.5);
             }
 
+            // Todo improve this, cause redondant code
             if (Meteor.isServer) {
-                self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
+                self.countdownLoopEvent = self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
                     var gameDb = GamesDb.findOne(this.id);
                     if (gameDb.secondsLeft > 0) {
                         GamesDb.update(this.id, {
                             $inc: {secondsLeft: -1}
                         });
                     } else {
-                        if (!this.passedPrepareEnd) {
-                            //Stop every player and mark loser
-                            for (var i = 0; i < self.players.length; i++) {
-                                self.players[i].canMove = false;
-                                if (self.players[i].isHotPotatoe) {
-                                    self.players[i].isLoser = true;
-                                    self.players[i].sprite.kill();
-                                }
-                            }
-                            //And wait a few seconds before switching to end state
-                            self.phaser.time.events.add(Phaser.Timer.SECOND * 3, function() {
-                                if (this.phaser.state.current != 'end') {
-                                    this.phaser.state.start('end');
-                                }
-                            }, self);
-                            this.passedPrepareEnd = true;
-                        }
+                        self.endGame();
                     }
                 }, self);
             } else {
-                self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
+                self.countdownLoopEvent = self.phaser.time.events.loop(Phaser.Timer.SECOND, function() {
                     var gameDb = GamesDb.findOne(this.id);
                     if (gameDb.secondsLeft == 0) {
-                        if (this.phaser.state.current != 'end') {
-                            if (!this.passedPrepareEnd) {
-
-                                for (var i = 0; i < self.players.length; i++) {
-                                    if (self.players[i].isHotPotatoe) {
-                                        self.players[i].isLoser = true;
-                                        this.finalExplosionEmitter.x = self.players[i].sprite.x;
-                                        this.finalExplosionEmitter.y = self.players[i].sprite.y;
-                                    }
-                                }
-
-                                this.finalExplosionEmitter.start(true, 2500, null, 100);
-
-                                //After a few seconds we switch to end state
-                                self.phaser.time.events.add(Phaser.Timer.SECOND * 3, function() {
-                                    this.phaser.state.start('end');
-                                }, self);
-
-                                this.passedPrepareEnd = true;
-                            }
-                        }
+                        self.endGame();
                     }
                 }, self);
             }
@@ -185,60 +147,6 @@ HotPotatoe.Game = function(game, id) {
     };
 
     this.phaser.state.add('main', mainState);
-
-    var endState = {
-        create: function() {
-            if (Meteor.isClient) {
-                var style = {font: "65px Arial", fill: "#ff0044", align: "center"};
-                var text = game.add.text(game.world.centerX, game.world.centerY, "Game Over", style);
-                text.anchor.set(0.5);
-
-                var loser = null;
-                var currentRoom =  GameRooms.currentRoom();
-                for (var i = 0; i < self.players.length; i++) {
-                    if (self.players[i].isLoser) {
-                        loser =_.findWhere(currentRoom.players, {id: self.players[i].id});
-                    }
-                }
-                var loserText = game.add.text(game.world.centerX, game.world.centerY + 40, loser.name + " lost the game !", {
-                    font: "16px Arial",
-                    fill: "#ffffff",
-                    align: "center"
-                });
-                loserText.anchor.set(0.5);
-
-                if (self.isSpectatorMode) {
-                    self.spectatorText = self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.height - 15, "Spectator", {
-                        font: "16px Arial",
-                        fill: "#ffffff",
-                        align: "center"
-                    });
-                    self.spectatorText.anchor.setTo(0.5, 0.5);
-                }
-            }
-
-            if (Meteor.isServer) {
-                //Terminate game
-                self.phaser.time.events.add(Phaser.Timer.SECOND * 10, function() {
-                    var gameId = self.id;
-                    Players.remove({gameId: gameId});
-                    GamesDb.update(gameId, {
-                        $set: {status: 'end'}
-                    });
-                    GameInstances.splice(gameId, 1);
-                    GameInstances[gameId].phaser.destroy();
-                    GameRooms.rooms.update({game: gameId}, {
-                        $set: {
-                            game: null
-                        }
-                    });
-                    console.log('Game ' + gameId + ' was destroyed');
-                }, self);
-            }
-        }
-    };
-
-    this.phaser.state.add('end', endState);
 };
 
 /**
@@ -258,7 +166,7 @@ HotPotatoe.Game.prototype.setUp = function(players) {
     }
 
     if (Meteor.isServer) {
-        this.players[new Phaser.RandomDataGenerator().between(0, this.players.length - 1)].setHotPotatoe(true);
+        this.players[Math.floor(Math.random() * this.players.length)].setHotPotatoe(true);
     }
 
     if (Meteor.isClient && !this.isSpectatorMode) {
@@ -276,4 +184,73 @@ HotPotatoe.Game.prototype.setUp = function(players) {
  */
 HotPotatoe.Game.prototype.start = function() {
     this.phaser.state.start('main');
+};
+
+/**
+ * End game
+ */
+HotPotatoe.Game.prototype.endGame = function() {
+    // Stop countdown loop when the game ending
+    this.phaser.time.events.remove(this.countdownLoopEvent);
+
+    if (Meteor.isServer) {
+        //Stop every player and mark loser
+        for (var i = 0; i < this.players.length; i++) {
+            this.players[i].canMove = false;
+            if (this.players[i].isHotPotatoe) {
+                this.players[i].isLoser = true;
+                this.players[i].sprite.visible = false;
+                this.players[i].sprite.kill();
+            }
+        }
+
+        this.phaser.time.events.add(Phaser.Timer.SECOND * 6, function() {
+            var gameId = this.id;
+            Players.remove({gameId: gameId});
+            GamesDb.update(gameId, {
+                $set: {status: 'end'}
+            });
+            GameInstances.splice(gameId, 1);
+            GameInstances[gameId].phaser.destroy();
+            GameRooms.rooms.update({game: gameId}, {
+                $set: {
+                    game: null
+                }
+            });
+            console.log('Game ' + gameId + ' was destroyed');
+        }, this);
+
+    } else {
+        var loser = null;
+        var currentRoom =  GameRooms.currentRoom();
+        for (var i = 0; i < this.players.length; i++) {
+            if (this.players[i].isHotPotatoe) {
+                this.players[i].isLoser = true;
+                this.finalExplosionEmitter.x = this.players[i].sprite.x;
+                this.finalExplosionEmitter.y = this.players[i].sprite.y;
+                this.players[i].sprite.visible = false;
+                loser =_.findWhere(currentRoom.players, {id: this.players[i].id});
+            }
+        }
+        this.finalExplosionEmitter.start(true, 5000, null, 100);
+        this.displayEndGameTexts(loser.name);
+    }
+};
+
+/**
+ * Displays the 'Game over' text and the loser name
+ *
+ * @param {String} loserName
+ */
+HotPotatoe.Game.prototype.displayEndGameTexts = function(loserName) {
+    var style = {font: "65px Arial", fill: "#ff0044", align: "center"};
+    var gameOverText = this.phaser.add.text(this.phaser.world.centerX, this.phaser.world.centerY, "Game Over", style);
+    gameOverText.anchor.set(0.5);
+
+    var loserText = this.phaser.add.text(this.phaser.world.centerX, this.phaser.world.centerY + 40, loserName + " lost the game !", {
+        font: "16px Arial",
+        fill: "#ffffff",
+        align: "center"
+    });
+    loserText.anchor.set(0.5);
 };

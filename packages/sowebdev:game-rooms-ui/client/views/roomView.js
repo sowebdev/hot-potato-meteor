@@ -1,6 +1,19 @@
 Template.roomView.helpers({
-    isOwner: function () {
-        return this.owner == GamePlayers.playerId();
+    isOwner: function (contextRoom, playerId) {
+        if(typeof contextRoom === 'undefined') {
+            contextRoom = this;
+        }
+        if(typeof playerId === 'undefined') {
+            playerId = GamePlayers.playerId();
+        }
+        return contextRoom.owner == playerId;
+    },
+    playerIsOwner: function () {
+        var currentRoom = GameRooms.currentRoom();
+        if (currentRoom) {
+            return this.id == currentRoom.owner;
+        }
+        return false;
     },
     gameExists: function() {
         var currentRoom = GameRooms.currentRoom();

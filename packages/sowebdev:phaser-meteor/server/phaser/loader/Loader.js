@@ -45,7 +45,7 @@ Phaser.Loader.prototype.loadFile = function () {
     var file = this._fileList[this._fileIndex];
     var _this = this;
 
-    this.onFileStart.dispatch(this.progress, file.key);
+    this.onFileStart.dispatch(this.progress, file.key, file.url);
 
     //  Image or Data?
     switch (file.type)
@@ -56,8 +56,8 @@ Phaser.Loader.prototype.loadFile = function () {
         case 'bitmapfont':
             file.data = new Image();
             file.data.name = file.key;
-            file.data.width = file.width;
-            file.data.height = file.height;
+            file.data.width = file.width;//Server needs to know width
+            file.data.height = file.height;//Server needs to know height
             file.data.onload = function () {
                 return _this.fileComplete(_this._fileIndex);
             };
@@ -101,7 +101,7 @@ Phaser.Loader.prototype.loadFile = function () {
                         };
                         file.data.preload = 'auto';
                         file.data.src = this.baseURL + file.url;
-                        file.data.addEventListener('canplaythrough', Phaser.GAMES[this.game.id].load.fileComplete(this._fileIndex), false);
+                        file.data.addEventListener('canplaythrough', function () { Phaser.GAMES[_this.game.id].load.fileComplete(_this._fileIndex); }, false);
                         file.data.load();
                     }
                 }
@@ -115,11 +115,11 @@ Phaser.Loader.prototype.loadFile = function () {
 
         case 'json':
 
-            if (window.XDomainRequest)
+            if (this.useXDomainRequest && window.XDomainRequest)
             {
                 this._ajax = new window.XDomainRequest();
 
-                // XDomainRequest has a few querks. Occasionally it will abort requests
+                // XDomainRequest has a few quirks. Occasionally it will abort requests
                 // A way to avoid this is to make sure ALL callbacks are set even if not used
                 // More info here: http://stackoverflow.com/questions/15786966/xdomainrequest-aborts-post-on-ie-9
                 this._ajax.timeout = 3000;
@@ -140,13 +140,22 @@ Phaser.Loader.prototype.loadFile = function () {
 
                 this._ajax.open('GET', this.baseURL + file.url, true);
 
-                this._ajax.send();
+                //  Note: The xdr.send() call is wrapped in a timeout to prevent an issue with the interface where some requests are lost
+                //  if multiple XDomainRequests are being sent at the same time.
+                setTimeout(function () {
+                    _this._ajax.send();
+                }, 0);
             }
             else
             {
                 this.xhrLoad(this._fileIndex, this.baseURL + file.url, 'text', 'jsonLoadComplete', 'dataLoadError');
             }
 
+            break;
+
+        case 'xml':
+
+            this.xhrLoad(this._fileIndex, this.baseURL + file.url, 'text', 'xmlLoadComplete', 'dataLoadError');
             break;
 
         case 'tilemap':

@@ -1,15 +1,28 @@
 <template name="roomView">
     <ul class="list-unstyled">
     {{#each players}}
-        <li><span class="glyphicon glyphicon-user"></span> {{name}}</li>
+        <li>
+            <span class="glyphicon glyphicon-{{#if isOwner .. id}}star{{else}}user{{/if}}"></span>
+            {{name}}
+        </li>
     {{/each}}
     </ul>
-    <a href="#" class="btn btn-danger leave">Leave</a>
     {{#unless gameExists}}
-        {{#if isOwner}}
-            {{#if gameCanStart}}
-        <a href="" class="btn btn-primary startGame">Start game</a>
-            {{/if}}
-        {{/if}}
+        {{#unless isOwner}}
+    <div class="well well-sm">
+        <img src="assets/ajax-loader.gif" alt=""/>
+        <span>Waiting for admin to start the game</span>
+    </div>
+        {{/unless}}
     {{/unless}}
+    <div>
+        <a href="#" class="btn btn-danger leave">Leave</a>
+        {{#unless gameExists}}
+            {{#if isOwner}}
+                {{#if gameCanStart}}
+            <a href="" class="btn btn-primary startGame">Start game</a>
+                {{/if}}
+            {{/if}}
+        {{/unless}}
+    </div>
 </template>
