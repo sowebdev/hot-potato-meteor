@@ -13,6 +13,7 @@ HotPotatoe.Game = function(game, id) {
     var self = this;
 
     this.phaser = game;
+    this.isMainStateRunning = false;
     this.id = id;
 
     this.players = [];
@@ -146,7 +147,19 @@ HotPotatoe.Game = function(game, id) {
         }
     };
 
+    var pendingState = {
+        create: function () {
+            if (Meteor.isClient) {
+                // todo display logo
+                self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.centerY, "PENDING", {
+                    fill: "#ffffff"
+                });
+            }
+        }
+    };
+
     this.phaser.state.add('main', mainState);
+    this.phaser.state.add('pending', pendingState);
 };
 
 /**
@@ -184,6 +197,15 @@ HotPotatoe.Game.prototype.setUp = function(players) {
  */
 HotPotatoe.Game.prototype.start = function() {
     this.phaser.state.start('main');
+    this.isMainStateRunning = true;
+};
+
+/**
+ * Pending game
+ */
+HotPotatoe.Game.prototype.switchToPending = function() {
+    this.phaser.state.start('pending');
+    this.isMainStateRunning = false;
 };
 
 /**
@@ -204,20 +226,18 @@ HotPotatoe.Game.prototype.endGame = function() {
             }
         }
 
+        // Final server-side game stopping
         this.phaser.time.events.add(Phaser.Timer.SECOND * 6, function() {
             var gameId = this.id;
             Players.remove({gameId: gameId});
             GamesDb.update(gameId, {
-                $set: {status: 'end'}
+                $set: {status: 'pending'}
             });
-            GameInstances.splice(gameId, 1);
-            GameInstances[gameId].phaser.destroy();
-            GameRooms.rooms.update({game: gameId}, {
-                $set: {
-                    game: null
-                }
-            });
-            console.log('Game ' + gameId + ' was destroyed');
+            while (this.players.length > 0) {
+                this.players.pop();
+            }
+            this.switchToPending();
+            console.log('Game ' + gameId + ' is switching to pending state');
         }, this);
 
     } else {

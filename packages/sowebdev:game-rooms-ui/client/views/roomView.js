@@ -15,10 +15,13 @@ Template.roomView.helpers({
         }
         return false;
     },
-    gameExists: function() {
+    gameRunning: function() {
         var currentRoom = GameRooms.currentRoom();
         if (currentRoom && currentRoom.game) {
-            return true;
+            var game = GamesDb.findOne(currentRoom.game);
+            if (game.status == 'running') {
+                return true;
+            }
         }
         return false;
     },

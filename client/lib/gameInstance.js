@@ -16,19 +16,23 @@ GameInstance.createGame = function (id) {
     //Subscribe to players sync for current game
     Meteor.subscribe('players', id);
     if (!GameInstance.game) {
-        //Run the game
-        var gameDb = GamesDb.findOne(id);
+        // Create Phaser instance
         GameInstance.game = new HotPotatoe.Game(new Phaser.Game(GameInstance.phaserConfig), id);
+    }
+    if (!GameInstance.game.isMainStateRunning) {
+        var gameDb = GamesDb.findOne(id);
         GameInstance.game.setUp(gameDb.players);
         GameInstance.game.start();
         document.getElementById('logo').style.display = "none";
     }
+
 };
 GameInstance.destroyGame = function () {
     if (GameInstance.game) {
-        GameInstance.game.phaser.destroy();
-        GameInstance.game = null;
-        document.getElementById('logo').style.display = "block";
+        GameInstance.game.switchToPending();
+        while (GameInstance.game.players.length > 0) {
+            GameInstance.game.players.pop();
+        }
     }
 };
 GameInstance.observeGameStatus = function () {
@@ -43,7 +47,7 @@ GameInstance.observeGameStatus = function () {
             if (newDoc.status == 'running' && oldDoc.status != 'running') {
                 GameInstance.createGame(newDoc._id);
             }
-            if (newDoc.status == 'end' && oldDoc.status != 'end') {
+            if (newDoc.status == 'pending' && oldDoc.status != 'pending') {
                 GameInstance.destroyGame();
             }
         }

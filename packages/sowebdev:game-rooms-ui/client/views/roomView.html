@@ -7,7 +7,7 @@
         </li>
     {{/each}}
     </ul>
-    {{#unless gameExists}}
+    {{#unless gameRunning}}
         {{#unless isOwner}}
     <div class="well well-sm">
         <img src="assets/ajax-loader.gif" alt=""/>
@@ -17,7 +17,7 @@
     {{/unless}}
     <div>
         <a href="#" class="btn btn-danger leave">Leave</a>
-        {{#unless gameExists}}
+        {{#unless gameRunning}}
             {{#if isOwner}}
                 {{#if gameCanStart}}
             <a href="" class="btn btn-primary startGame">Start game</a>
