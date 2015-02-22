@@ -37,9 +37,10 @@ Meteor.startup(function(){
         if (!gameId) {
             gameId = GamesDb.insert({
                 status: 'pending',
-                players: gamePlayers,
                 room: roomId
             });
+        }
+        if (!GameInstances[gameId]) {
             GameInstances[gameId] = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameId);
         }
 
@@ -60,7 +61,11 @@ Meteor.startup(function(){
         GameInstances[gameId].start();
 
         GamesDb.update(gameId, {
-            $set: {status: 'running', secondsLeft: 10}
+            $set: {
+                status: 'running',
+                secondsLeft: 10,
+                players: gamePlayers
+            }
         });
 
         return gameId;

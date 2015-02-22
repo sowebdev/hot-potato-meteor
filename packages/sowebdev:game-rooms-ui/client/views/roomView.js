@@ -19,7 +19,7 @@ Template.roomView.helpers({
         var currentRoom = GameRooms.currentRoom();
         if (currentRoom && currentRoom.game) {
             var game = GamesDb.findOne(currentRoom.game);
-            if (game.status == 'running') {
+            if (game && game.status == 'running') {
                 return true;
             }
         }
