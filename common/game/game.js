@@ -169,9 +169,10 @@ HotPotatoe.Game = function(game, id) {
  * Configure game with players
  *
  * @param {string[]} players
+ * @param {string} gameId
  */
-HotPotatoe.Game.prototype.setUp = function(players) {
-
+HotPotatoe.Game.prototype.setUp = function(players, gameId) {
+    this.id = gameId;
     if (players.indexOf(GamePlayers.playerId()) == -1) {
         this.isSpectatorMode = true;
     }

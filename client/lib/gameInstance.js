@@ -21,7 +21,7 @@ GameInstance.createGame = function (id) {
     }
     if (!GameInstance.game.isMainStateRunning) {
         var gameDb = GamesDb.findOne(id);
-        GameInstance.game.setUp(gameDb.players);
+        GameInstance.game.setUp(gameDb.players, id);
         GameInstance.game.start();
         document.getElementById('logo').style.display = "none";
     }

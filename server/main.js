@@ -57,7 +57,7 @@ Meteor.startup(function(){
         });
 
         //Run server-side game instance
-        GameInstances[gameId].setUp(gamePlayers);
+        GameInstances[gameId].setUp(gamePlayers, gameId);
         GameInstances[gameId].start();
 
         GamesDb.update(gameId, {
