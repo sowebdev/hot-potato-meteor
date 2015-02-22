@@ -148,12 +148,15 @@ HotPotatoe.Game = function(game, id) {
     };
 
     var pendingState = {
-        create: function () {
+        preload: function() {
             if (Meteor.isClient) {
-                // todo display logo
-                self.phaser.add.text(self.phaser.world.centerX, self.phaser.world.centerY, "PENDING", {
-                    fill: "#ffffff"
-                });
+                self.phaser.load.image('logo', 'assets/hotpotato_min.jpg', false, 400, 479);
+            }
+        },
+        create: function() {
+            if (Meteor.isClient) {
+                self.phaser.stage.backgroundColor = '#ffffff';
+                self.phaser.add.sprite(200, 20, 'logo');
             }
         }
     };
