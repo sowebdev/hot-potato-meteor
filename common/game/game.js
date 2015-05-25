@@ -237,11 +237,12 @@ HotPotatoe.Game.prototype.endGame = function() {
             GamesDb.update(gameId, {
                 $set: {status: 'pending'}
             });
-            while (this.players.length > 0) {
-                this.players.pop();
-            }
-            this.switchToPending();
-            console.log('Game ' + gameId + ' is switching to pending state');
+
+            // On server, we need to destroy the phaser instance
+            GameInstances[gameId].phaser.destroy();
+            delete GameInstances[gameId];
+
+            console.log('Game ' + gameId + ' was destroyed');
         }, this);
 
     } else {

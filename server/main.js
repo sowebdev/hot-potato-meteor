@@ -40,7 +40,9 @@ Meteor.startup(function(){
                 room: roomId
             });
         }
+        // /!\ GameInstances.length will always returns 0 because the keys are string
         if (!GameInstances[gameId]) {
+            console.log('Create new Phaser instance for game id = ' + gameId);
             GameInstances[gameId] = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameId);
         }
 
