@@ -8,12 +8,11 @@ Template.roomView.helpers({
         }
         return contextRoom.owner == playerId;
     },
-    playerIsOwner: function () {
-        var currentRoom = GameRooms.currentRoom();
-        if (currentRoom) {
-            return this.id == currentRoom.owner;
+    isCurrentPlayerOwner: function (contextRoom) {
+        if(typeof contextRoom === 'undefined') {
+            contextRoom = this;
         }
-        return false;
+        return GamePlayers.playerId() == contextRoom.owner;
     },
     gameRunning: function() {
         var currentRoom = GameRooms.currentRoom();
@@ -41,6 +40,10 @@ Template.roomView.events({
     },
     'click .leave': function(){
         GameRooms.leaveRoom();
+        return false;
+    },
+    'click .kickPlayer': function() {
+        GameRooms.kickPlayer(this.id);
         return false;
     }
 });
