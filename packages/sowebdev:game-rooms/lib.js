@@ -131,7 +131,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         setCurrentRoom: setCurrentRoom,
-        leaveRoom: function () {
+        leaveRoom: function (playerIdToRemove) {
             var player = GamePlayers.player();
             if (!player) {
                 throw new Meteor.Error('User has no player profile');
@@ -140,7 +140,10 @@ if (Meteor.isServer) {
             if (!room) {
                 throw new Meteor.Error('Player is not in a room');
             }
-            removePlayerFromRoom(player._id, room._id);
+            if(!playerIdToRemove) {
+                playerIdToRemove = player._id;
+            }
+            removePlayerFromRoom(playerIdToRemove, room._id);
         },
         createRoom: function (name) {
             var roomId = createRoom(name);
@@ -203,5 +206,13 @@ if (Meteor.isClient) {
      */
     GameRooms.leaveRoom = function () {
         return Meteor.call('leaveRoom');
+    };
+    /**
+     * @summary Makes current player can kick a player from the current room
+     * @param {string} playerId - Player's id to remove
+     * @locus Client
+     */
+    GameRooms.kickPlayer = function (playerId) {
+        return Meteor.call('leaveRoom', playerId);
     };
 }

@@ -13,6 +13,7 @@ HotPotatoe.Game = function(game, id) {
     var self = this;
 
     this.phaser = game;
+    this.isMainStateRunning = false;
     this.id = id;
 
     this.players = [];
@@ -146,16 +147,32 @@ HotPotatoe.Game = function(game, id) {
         }
     };
 
+    var pendingState = {
+        preload: function() {
+            if (Meteor.isClient) {
+                self.phaser.load.image('logo', 'assets/hotpotato_min.jpg', false, 400, 479);
+            }
+        },
+        create: function() {
+            if (Meteor.isClient) {
+                self.phaser.stage.backgroundColor = '#ffffff';
+                self.phaser.add.sprite(200, 20, 'logo');
+            }
+        }
+    };
+
     this.phaser.state.add('main', mainState);
+    this.phaser.state.add('pending', pendingState);
 };
 
 /**
  * Configure game with players
  *
  * @param {string[]} players
+ * @param {string} gameId
  */
-HotPotatoe.Game.prototype.setUp = function(players) {
-
+HotPotatoe.Game.prototype.setUp = function(players, gameId) {
+    this.id = gameId;
     if (players.indexOf(GamePlayers.playerId()) == -1) {
         this.isSpectatorMode = true;
     }
@@ -184,6 +201,15 @@ HotPotatoe.Game.prototype.setUp = function(players) {
  */
 HotPotatoe.Game.prototype.start = function() {
     this.phaser.state.start('main');
+    this.isMainStateRunning = true;
+};
+
+/**
+ * Pending game
+ */
+HotPotatoe.Game.prototype.switchToPending = function() {
+    this.phaser.state.start('pending');
+    this.isMainStateRunning = false;
 };
 
 /**
@@ -204,19 +230,18 @@ HotPotatoe.Game.prototype.endGame = function() {
             }
         }
 
+        // Final server-side game stopping
         this.phaser.time.events.add(Phaser.Timer.SECOND * 6, function() {
             var gameId = this.id;
             Players.remove({gameId: gameId});
             GamesDb.update(gameId, {
-                $set: {status: 'end'}
+                $set: {status: 'pending'}
             });
-            GameInstances.splice(gameId, 1);
+
+            // On server, we need to destroy the phaser instance
             GameInstances[gameId].phaser.destroy();
-            GameRooms.rooms.update({game: gameId}, {
-                $set: {
-                    game: null
-                }
-            });
+            delete GameInstances[gameId];
+
             console.log('Game ' + gameId + ' was destroyed');
         }, this);
 

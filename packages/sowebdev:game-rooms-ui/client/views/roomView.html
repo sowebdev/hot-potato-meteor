@@ -4,11 +4,18 @@
         <li>
             <span class="glyphicon glyphicon-{{#if isOwner .. id}}star{{else}}user{{/if}}"></span>
             {{name}}
+            {{#unless isOwner .. id}}
+                {{#if isCurrentPlayerOwner ..}}
+                    {{#unless gameRunning}}
+                        <a href="" class="kickPlayer">kick</a>
+                    {{/unless}}
+                {{/if}}
+            {{/unless}}
         </li>
     {{/each}}
     </ul>
-    {{#unless gameExists}}
-        {{#unless isOwner}}
+    {{#unless gameRunning}}
+        {{#unless isCurrentPlayerOwner}}
     <div class="well well-sm">
         <img src="assets/ajax-loader.gif" alt=""/>
         <span>Waiting for admin to start the game</span>
@@ -17,8 +24,8 @@
     {{/unless}}
     <div>
         <a href="#" class="btn btn-danger leave">Leave</a>
-        {{#unless gameExists}}
-            {{#if isOwner}}
+        {{#unless gameRunning}}
+            {{#if isCurrentPlayerOwner}}
                 {{#if gameCanStart}}
             <a href="" class="btn btn-primary startGame">Start game</a>
                 {{/if}}

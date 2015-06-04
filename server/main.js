@@ -20,25 +20,31 @@ Meteor.publish('players', function (game) {
 
 Meteor.startup(function(){
     GameRooms.startGameCallback = function(roomId){
+        //Create server-side phaser game instance
+        var phaserConfig = {
+            width: 700,
+            height: 500
+        };
+
         //Create game document in DB
         var room = GameRooms.rooms.findOne(roomId);
         var gamePlayers = [];
         _.each(room.players, function(elem){
             gamePlayers.push(elem.id);
         });
-        var gameId = GamesDb.insert({
-            status: 'pending',
-            players: gamePlayers,
-            secondsLeft: 10,
-            room: roomId
-        });
 
-        //Create server-side phaser game instance
-        var phaserConfig = {
-            width: 700,
-            height: 500
-        };
-        GameInstances[gameId] = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameId);
+        var gameId = room.game;
+        if (!gameId) {
+            gameId = GamesDb.insert({
+                status: 'pending',
+                room: roomId
+            });
+        }
+        // /!\ GameInstances.length will always returns 0 because the keys are string
+        if (!GameInstances[gameId]) {
+            console.log('Create new Phaser instance for game id = ' + gameId);
+            GameInstances[gameId] = new HotPotatoe.Game(new Phaser.Game(phaserConfig), gameId);
+        }
 
         //Initialize user actions
         _.each(gamePlayers, function(playerId){
@@ -53,11 +59,15 @@ Meteor.startup(function(){
         });
 
         //Run server-side game instance
-        GameInstances[gameId].setUp(gamePlayers);
+        GameInstances[gameId].setUp(gamePlayers, gameId);
         GameInstances[gameId].start();
 
         GamesDb.update(gameId, {
-            $set: {status: 'running'}
+            $set: {
+                status: 'running',
+                secondsLeft: 10,
+                players: gamePlayers
+            }
         });
 
         return gameId;
